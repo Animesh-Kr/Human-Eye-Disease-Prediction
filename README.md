@@ -1,76 +1,104 @@
 # Human Eye Disease Prediction: Retinal OCT Analysis Platform 👁️
 
-[![Python](https://img.shields.io/badge/Python-3.9%2B-blue)](https://www.python.org/)
-[![TensorFlow](https://img.shields.io/badge/TensorFlow-2.x-orange)](https://tensorflow.org/)
-[![Status](https://img.shields.io/badge/Status-Maintained-green)]()
-
 ## 📌 Project Overview
-Optical Coherence Tomography (OCT) is a powerful imaging technique that provides high-resolution cross-sectional images of the retina. This project implements a **Deep Learning based automated analysis platform** designed to streamline the diagnosis of retinal diseases.
 
-By leveraging **Convolutional Neural Networks (CNNs)**, this tool classifies OCT scans into four distinct categories, aiding ophthalmologists in the early detection of conditions that can lead to vision loss, such as Choroidal Neovascularization (CNV), Diabetic Macular Edema (DME), and Age-Related Macular Degeneration (AMD).
+This project implements a high-performance **Hybrid Deep Learning** analysis platform designed to automate the diagnosis of retinal diseases using Optical Coherence Tomography (OCT) scans.
+
+By combining the spatial feature extraction capabilities of **EfficientNetV2** with the robust gradient-boosted decision logic of **XGBoost**, this platform provides a reliable tool for distinguishing between **Normal** retinas and critical pathologies like **CNV**, **DME**, and **Drusen**.
 
 ## 🚀 Key Features
-* **Automated Image Analysis:** Utilizes state-of-the-art CNN architectures to classify OCT images with high accuracy.
-* **Multi-Class Classification:** Distinguishes between **Normal**, **CNV**, **DME**, and **Drusen**.
-* **High-Volume Processing:** Trained on a dataset of over **84,000** high-resolution images.
-* **Medical Decision Support:** Designed to reduce the manual interpretation burden on medical professionals.
 
-## 🩺 Understanding Retinal Diseases
-The model is trained to identify the following specific pathologies:
+* **Hybrid Architecture**: Utilizes a dual-model approach (CNN + XGBoost) for superior diagnostic accuracy.
+* **Explainable AI (XAI)**: Integrated **Grad-CAM** visualization provides "heatmaps" to show medical professionals exactly where the AI is focusing its attention.
+* **High-Volume Processing**: Optimized to handle large-scale clinical datasets (>84,000 images).
+* **Clinical Decision Support**: Designed with medical-grade insights and recommendations for each identified pathology.
+* **RTX Optimized**: Custom configuration for hardware acceleration on NVIDIA RTX 40-series GPUs.
+
+## 🧠 Model Architecture
+
+The system utilizes a multi-stage classification pipeline:
+
+1. **Spatial Feature Extraction**: A pre-trained **EfficientNetV2-B0** (fine-tuned) extracts 1280 unique deep-feature vectors from each scan.
+2. **Gradient Boosted Classification**: An **XGBoost** classifier processes these high-dimensional vectors to make the final diagnostic decision.
+3. **Explainability Layer**: **Grad-CAM** generates activation maps to validate the biological relevance of the AI's findings.
+
+## 🩺 Supported Pathologies
 
 | Disease | Description | Visual Characteristic |
-| :--- | :--- | :--- |
-| **CNV (Choroidal Neovascularization)** | Neovascular membrane with subretinal fluid. | Abnormal blood vessel growth. |
-| **DME (Diabetic Macular Edema)** | Retinal thickening with intraretinal fluid. | Fluid accumulation due to diabetes. |
-| **Drusen (Early AMD)** | Presence of multiple drusen deposits. | Yellow deposits under the retina. |
-| **Normal** | Preserved foveal contour. | Absence of fluid or edema. |
+| --- | --- | --- |
+| **CNV** | Choroidal Neovascularization | Neovascular membrane with subretinal fluid. |
+| **DME** | Diabetic Macular Edema | Retinal thickening with intraretinal fluid. |
+| **DRUSEN** | Early AMD | Presence of multiple yellow drusen deposits. |
+| **NORMAL** | Healthy Retina | Preserved foveal contour without fluid/edema. |
 
 ## 📂 Dataset Information
-The model was trained and validated on a large-scale dataset sourced from varied medical centers to ensure patient diversity.
 
-* **Total Images:** 84,495 High-Resolution OCT Scans (JPEG)
-* **Structure:** Organized into Train, Test, and Validation sets.
-* **Verification:** Images underwent tiered expert verification to ensure ground-truth accuracy.
-* **Source:** [Kaggle - Labeled Optical Coherence Tomography (OCT)](https://www.kaggle.com/datasets/anirudhcv/labeled-optical-coherence-tomography-oct)
+* **Total Images**: 84,495 High-Resolution scans.
+* **Verification**: Tiered expert verification by senior retinal specialists.
+* **Source**: [Kaggle - Labeled Optical Coherence Tomography (OCT)](https://www.google.com/search?q=https://www.kaggle.com/paultimothymooney/kermany2018)
 
 ## 🛠️ Technical Stack
-* **Core Framework:** Python, TensorFlow/Keras
-* **Model Architecture:** Convolutional Neural Networks (CNN) / Transfer Learning (e.g., VGG16/ResNet)
-* **Preprocessing:** Image Resizing, Normalization, CLAHE (Contrast Limited Adaptive Histogram Equalization)
-* **Data Augmentation:** Rotation, Zoom, Horizontal Flip to prevent overfitting.
+
+* **Languages**: Python 3.10
+* **Deep Learning**: TensorFlow 2.10, Keras
+* **Machine Learning**: XGBoost, Scikit-Learn
+* **Computer Vision**: OpenCV (CV2)
+* **Deployment**: Streamlit
+* **Data Handling**: NumPy, Pandas
 
 ## 💻 Installation & Usage
 
-1. **Clone the repository:**
-   ```bash
-   git clone [https://github.com/Animesh-Kr/Human-Eye-Disease-Prediction.git](https://github.com/Animesh-Kr/Human-Eye-Disease-Prediction.git)
-   cd Human-Eye-Disease-Prediction
-2. **Create the environment:**
-   ```bash
-   conda create -n GPU_RTX python=3.10
-   conda activate GPU_RTX
-4. **Install dependencies:**
-   ```bash
-   pip install -r requirements.txt
-5. **Run the prediction script:**
-   ```bash
-   python predict.py --image_path path/to/your/oct_scan.jpg
-   
-📊 Results
-Training Accuracy: ~96% (Update this with your actual final accuracy)
+### 1. Clone the repository
 
-Validation Accuracy: ~94% (Update this with your actual final accuracy)
+```bash
+git clone https://github.com/Animesh-Kr/Human-Eye-Disease-Prediction.git
+cd Human-Eye-Disease-Prediction
 
-Loss: Optimized using Categorical Crossentropy.
+```
 
-🤝 Contribution
-Contributions are welcome! Please feel free to submit a Pull Request.
+### 2. Set up the Environment
 
-📧 Contact
-For questions or collaboration regarding this research:
+```bash
+conda create -n GPU_RTX python=3.10
+conda activate GPU_RTX
+pip install -r requirements.txt
 
-Developer: Animesh Kumar
+```
 
-Email: kranimesh2004@gmail.com
+### 3. Run the Training Pipeline
 
-LinkedIn: Animesh Kumar
+To retrain the hybrid model on your hardware:
+
+```bash
+python train_hybrid.py
+
+```
+
+### 4. Launch the Diagnostic Dashboard
+
+To run the interactive Streamlit web application:
+
+```bash
+streamlit run app.py
+
+```
+
+## 📊 Results
+
+* **Training Accuracy**: ~97.3%
+* **Validation Accuracy**: ~95.0%
+* **Hardware Benchmark**: Optimized for NVIDIA RTX 4060 using Stable Mode (Float32).
+
+## 🤝 Contribution
+
+This project was developed as part of MSc research at **Newcastle University**. Contributions for improving model interpretability or expanding the dataset are welcome.
+
+## 📧 Contact
+
+**Developer**: Animesh Kumar
+
+**Education**: MSc Advanced Computer Science, Newcastle University
+
+**Email**: [kranimesh2004@gmail.com](mailto:kranimesh2004@gmail.com)
+
+**LinkedIn**: [Animesh Kumar](https://www.google.com/search?q=https://www.linkedin.com/in/animesh-kumar/)
