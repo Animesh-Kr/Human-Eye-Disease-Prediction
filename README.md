@@ -70,9 +70,3 @@ Developer: Animesh Kumar
 Email: kranimesh2004@gmail.com
 
 LinkedIn: Animesh Kumar
-
-
-### **Quick Checklist Before You Commit:**
-1.  **Repo Name:** Make sure your repository is actually named `Human-Eye-Disease-Prediction` (check for typos like "Precdiction" in the URL). If the URL is different, update the `git clone` line in the code above.
-2.  **Screenshots:** Create a folder named `screenshots` in your repo and upload an image of your model's confusion matrix or a test prediction. (You can then add `![Result Screenshot](screenshots/result.png)` to the Results section later).
-3.  **Requirements:** Ensure you have a `requirements.txt` file in the main folder.
