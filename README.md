@@ -45,10 +45,14 @@ The model was trained and validated on a large-scale dataset sourced from varied
    ```bash
    git clone [https://github.com/Animesh-Kr/Human-Eye-Disease-Prediction.git](https://github.com/Animesh-Kr/Human-Eye-Disease-Prediction.git)
    cd Human-Eye-Disease-Prediction
-2. **Install dependencies:**
+2. **Create the environment:
+   ```bash
+   conda create -n GPU_RTX python=3.10
+   conda activate GPU_RTX
+4. **Install dependencies:**
    ```bash
    pip install -r requirements.txt
-3. **Run the prediction script:**
+5. **Run the prediction script:**
    ```bash
    python predict.py --image_path path/to/your/oct_scan.jpg
    
