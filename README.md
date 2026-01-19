@@ -42,20 +42,20 @@ The model was trained and validated on a large-scale dataset sourced from varied
 ## 💻 Installation & Usage
 
 1. **Clone the repository:**
-Install dependencies:
-
-Bash
-
-pip install -r requirements.txt
-Run the prediction script:
-
-Bash
-
-python predict.py --image_path path/to/your/oct_scan.jpg
+   ```bash
+   git clone [https://github.com/Animesh-Kr/Human-Eye-Disease-Prediction.git](https://github.com/Animesh-Kr/Human-Eye-Disease-Prediction.git)
+   cd Human-Eye-Disease-Prediction
+2. **Install dependencies:**
+   ```bash
+   pip install -r requirements.txt
+3. **Run the prediction script:**
+   ```bash
+   python predict.py --image_path path/to/your/oct_scan.jpg
+   
 📊 Results
-Training Accuracy: ~96% (Example metric - update with your real number)
+Training Accuracy: ~96% (Update this with your actual final accuracy)
 
-Validation Accuracy: ~94% (Example metric - update with your real number)
+Validation Accuracy: ~94% (Update this with your actual final accuracy)
 
 Loss: Optimized using Categorical Crossentropy.
 
@@ -72,10 +72,7 @@ Email: kranimesh2004@gmail.com
 LinkedIn: Animesh Kumar
 
 
-### **Important Next Steps for This Repo:**
-1.  **Screenshots:** Since the text mentions "Explore Results," you **must** add a folder named `screenshots` to your repo and upload 1-2 images of the code running or a graph of the training accuracy.
-2.  **Requirements File:** Make sure you create a file named `requirements.txt` in the repo with the libraries you used (e.g., `tensorflow`, `numpy`, `pandas`, `matplotlib`).
-3.  **Typos Fixed:** I corrected "Precdiction" to "Prediction" in the title. Ensure you
-   ```bash
-   git clone [https://github.com/Animesh-Kr/Human-Eye-Disease-Prediction.git](https://github.com/Animesh-Kr/Human-Eye-Disease-Prediction.git)
-   cd Human-Eye-Disease-Prediction
+### **Quick Checklist Before You Commit:**
+1.  **Repo Name:** Make sure your repository is actually named `Human-Eye-Disease-Prediction` (check for typos like "Precdiction" in the URL). If the URL is different, update the `git clone` line in the code above.
+2.  **Screenshots:** Create a folder named `screenshots` in your repo and upload an image of your model's confusion matrix or a test prediction. (You can then add `![Result Screenshot](screenshots/result.png)` to the Results section later).
+3.  **Requirements:** Ensure you have a `requirements.txt` file in the main folder.
