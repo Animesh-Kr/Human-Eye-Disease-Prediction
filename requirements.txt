@@ -1,0 +1,22 @@
+# --- Core Deep Learning & GPU Acceleration ---
+tensorflow==2.10.1
+xgboost
+
+# --- Data Processing (Fixed for TF 2.10 Stability) ---
+numpy==1.26.4
+pandas
+scikit-learn
+
+# --- Computer Vision & Imaging ---
+# Using headless for server deployment compatibility
+opencv-python-headless==4.9.0.80
+Pillow
+
+# --- XAI & Visualization ---
+matplotlib
+seaborn
+
+# --- Deployment & Environment ---
+streamlit
+kagglehub
+tqdm
