@@ -9,18 +9,18 @@ By combining the spatial feature extraction capabilities of **EfficientNetV2** w
 ## 🚀 Key Features
 
 * **Hybrid Architecture**: Utilizes a dual-model approach (CNN + XGBoost) for superior diagnostic accuracy.
-* **Explainable AI (XAI)**: Integrated **Grad-CAM** visualization provides "heatmaps" to show medical professionals exactly where the AI is focusing its attention.
-* **High-Volume Processing**: Optimized to handle large-scale clinical datasets (>84,000 images).
+* **Medical Preprocessing**: Integrated **CLAHE** (Contrast Limited Adaptive Histogram Equalization) to sharpen pathological markers like subretinal fluid.
+* **Dynamic Hardware Detection**: Automatically detects and utilizes available GPU acceleration (e.g., NVIDIA RTX 4060) or falls back to CPU.
 * **Clinical Decision Support**: Designed with medical-grade insights and recommendations for each identified pathology.
-* **RTX Optimized**: Custom configuration for hardware acceleration on NVIDIA RTX 40-series GPUs.
+* **Memory Optimized**: Custom VRAM management to prevent "Paging File" errors on consumer-grade hardware.
 
 ## 🧠 Model Architecture
 
 The system utilizes a multi-stage classification pipeline:
 
-1. **Spatial Feature Extraction**: A pre-trained **EfficientNetV2-B0** (fine-tuned) extracts 1280 unique deep-feature vectors from each scan.
+1. **Spatial Feature Extraction**: A pre-trained **EfficientNetV2-B0** extracts 1280 unique deep-feature vectors from each scan.
 2. **Gradient Boosted Classification**: An **XGBoost** classifier processes these high-dimensional vectors to make the final diagnostic decision.
-3. **Explainability Layer**: **Grad-CAM** generates activation maps to validate the biological relevance of the AI's findings.
+3. **Preprocessing Layer**: **CLAHE** enhancement is applied to input images to improve contrast before feature extraction.
 
 ## 🩺 Supported Pathologies
 
@@ -34,17 +34,16 @@ The system utilizes a multi-stage classification pipeline:
 ## 📂 Dataset Information
 
 * **Total Images**: 84,495 High-Resolution scans.
-* **Verification**: Tiered expert verification by senior retinal specialists.
-* **Source**: [Kaggle - Labeled Optical Coherence Tomography (OCT)](https://www.kaggle.com/datasets/anirudhcv/labeled-optical-coherence-tomography-oct)
+* **Structure**: 76,515 training images and 10,933 test images.
+* **Source**: [Kaggle - Labeled Optical Coherence Tomography (OCT)](https://www.kaggle.com/datasets/anirudhcv/labeled-optical-coherence-tomography-oct).
 
 ## 🛠️ Technical Stack
 
 * **Languages**: Python 3.10
 * **Deep Learning**: TensorFlow 2.10, Keras
-* **Machine Learning**: XGBoost, Scikit-Learn
+* **Machine Learning**: XGBoost 2.x, Scikit-Learn
 * **Computer Vision**: OpenCV (CV2)
-* **Deployment**: Streamlit
-* **Data Handling**: NumPy, Pandas
+* **Deployment**: Streamlit 1.24.0
 
 ## 💻 Installation & Usage
 
@@ -58,16 +57,18 @@ cd Human-Eye-Disease-Prediction
 
 ### 2. Set up the Environment
 
+Due to specific version requirements for GPU acceleration, use the following pinned versions:
+
 ```bash
 conda create -n GPU_RTX python=3.10
 conda activate GPU_RTX
-pip install -r requirements.txt
+pip install tensorflow==2.10.0 streamlit==1.24.0 protobuf==3.20.3 xgboost opencv-python pandas
 
 ```
 
 ### 3. Run the Training Pipeline
 
-To retrain the hybrid model on your hardware:
+To retrain the hybrid model on your local hardware (requires dataset in `.cache` or project folder):
 
 ```bash
 python train_hybrid.py
@@ -79,19 +80,20 @@ python train_hybrid.py
 To run the interactive Streamlit web application:
 
 ```bash
-streamlit run app.py
+python -m streamlit run app.py
 
 ```
 
-## 📊 Results
+## 📊 Results (Final Test Set)
 
-* **Training Accuracy**: ~97.3%
-* **Validation Accuracy**: ~95.0%
-* **Hardware Benchmark**: Optimized for NVIDIA RTX 4060 using Stable Mode (Float32).
+* **Overall Accuracy**: 93%
+* **CNV Precision**: 94%
+* **Normal Precision**: 95%
+* **Hardware Benchmark**: Tested on **NVIDIA GeForce RTX 4060 Laptop GPU**.
 
 ## 🤝 Contribution
 
-This project was developed as part of MSc research at **Newcastle University**. Contributions for improving model interpretability or expanding the dataset are welcome.
+This project was developed as part of MSc research at **Newcastle University**.
 
 ## 📧 Contact
 
@@ -99,6 +101,8 @@ This project was developed as part of MSc research at **Newcastle University**. 
 
 **Education**: MSc Advanced Computer Science, Newcastle University
 
-**Email**: [kranimesh2004@gmail.com](mailto:kranimesh2004@gmail.com)
+**LinkedIn**: [Animesh Kumar](https://www.google.com/search?q=https://www.linkedin.com/in/animeshakumar/)
 
-**LinkedIn**: [Animesh Kumar](https://www.google.com/search?q=https://www.linkedin.com/in/animesh-kumar/)
+---
+
+**Would you like me to help you create a `requirements.txt` file that matches these pinned versions perfectly?**
