@@ -35,7 +35,7 @@ The system utilizes a multi-stage classification pipeline:
 
 * **Total Images**: 84,495 High-Resolution scans.
 * **Verification**: Tiered expert verification by senior retinal specialists.
-* **Source**: [Kaggle - Labeled Optical Coherence Tomography (OCT)](https://www.google.com/search?q=https://www.kaggle.com/paultimothymooney/kermany2018)
+* **Source**: [Kaggle - Labeled Optical Coherence Tomography (OCT)](https://www.kaggle.com/datasets/anirudhcv/labeled-optical-coherence-tomography-oct)
 
 ## 🛠️ Technical Stack
 
