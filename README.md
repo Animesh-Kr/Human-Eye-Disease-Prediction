@@ -102,5 +102,3 @@ This project was developed as part of **B.Tech** at **Dr. A.P.J. Abdul Kalam Tec
 **Education**: MSc Advanced Computer Science, Newcastle University
 
 **LinkedIn**: [Animesh Kumar](https://www.google.com/search?q=https://www.linkedin.com/in/animeshakumar/)
-
----**Would you like me to help you create a `requirements.txt` file that matches these pinned versions perfectly?**
