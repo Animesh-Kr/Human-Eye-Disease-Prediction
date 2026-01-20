@@ -93,7 +93,7 @@ python -m streamlit run app.py
 
 ## 🤝 Contribution
 
-This project was developed as part of MSc research at **Newcastle University**.
+This project was developed as part of **B.Tech** at **Dr. A.P.J. Abdul Kalam Technical University (AKTU), Lucknow**.
 
 ## 📧 Contact
 
@@ -103,6 +103,4 @@ This project was developed as part of MSc research at **Newcastle University**.
 
 **LinkedIn**: [Animesh Kumar](https://www.google.com/search?q=https://www.linkedin.com/in/animeshakumar/)
 
----
-
-**Would you like me to help you create a `requirements.txt` file that matches these pinned versions perfectly?**
+---**Would you like me to help you create a `requirements.txt` file that matches these pinned versions perfectly?**
