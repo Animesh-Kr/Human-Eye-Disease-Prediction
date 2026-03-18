@@ -58,6 +58,13 @@ python -c "from huggingface_hub import hf_hub_download; hf_hub_download(repo_id=
 streamlit run app.py
 ```
 
+## 📥 Model Weights & Assets
+The trained weights and calibration files for this project are hosted on Hugging Face due to their large size (~2.07 GB).
+
+**Download weights here**: [animeshakr/oct-retinal-weights](https://huggingface.co/animeshakr/oct-retinal-weights)
+
+Place the downloaded files into the `models/` directory before running the dashboard.
+
 ## 📂 Repository Structure
 
   * `app.py`: High-fidelity Streamlit dashboard.
