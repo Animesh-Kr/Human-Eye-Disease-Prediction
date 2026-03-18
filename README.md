@@ -71,6 +71,4 @@ This research was initiated during a **B.Tech** at **AKTU, Lucknow** and further
 
 -----
 
-**Developer**: [Animesh Kumar](https://www.google.com/search?q=https://www.linkedin.com/in/animeshakumar/)
-
-http://googleusercontent.com/interactive_content_block/0
+**Developer**: [Animesh Kumar]
