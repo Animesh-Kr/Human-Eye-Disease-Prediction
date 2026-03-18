@@ -1,9 +1,3 @@
-Yes, you absolutely should include the Hugging Face link. For an ML project of this scale, especially a PhD-level project, hosting weights externally is standard professional practice. It proves you understand how to manage large-scale assets and keeps your GitHub repository clean.
-
-I have rewritten your `README.md` to reflect your updated **EfficientNetV2L + Transformer** architecture and added the Hugging Face section.
-
------
-
 # 👁️ OCT Retinal AI: Hybrid CNN-Transformer Platform
 
 [](https://www.google.com/search?q=https://huggingface.co/animeshakr/oct-retinal-weights)
