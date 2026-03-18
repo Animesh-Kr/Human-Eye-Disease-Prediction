@@ -1,0 +1,6 @@
+,Accuracy,Macro F1,Drusen F1,Macro AUC
+Logistic Regression,0.9639,0.9374,0.8645,0.9949
+"SVM (Linear, calibrated)",0.9654,0.9395,0.8686,0.9932
+XGBoost (no CutMix),0.9632,0.9364,0.8612,0.9948
+XGBoost (backbone-only),0.9659,0.9408,0.8679,0.9955
+XGBoost Hybrid (final),0.9589,0.9316,0.8553,0.9947
