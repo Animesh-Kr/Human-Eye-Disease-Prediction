@@ -25,7 +25,7 @@ This system utilizes a three-stage hybrid classification pipeline designed for m
 
 Due to the large size of the high-fidelity model (\~2.07 GB), weights are hosted on the Hugging Face Model Hub.
 
-  * **Repository**: [animeshakr/oct-retinal-weights](https://www.google.com/search?q=https://huggingface.co/animeshakr/oct-retinal-weights)
+  * **Repository**: [animeshakr/oct-retinal-weights](https://huggingface.co/animeshakr/oct-retinal-weights)
   * **Contents**: `.keras` full model, `.weights.h5` legacy weights, XGBoost JSON, and OOD calibration `.npy` files.
 
 ## 📊 Performance
