@@ -78,4 +78,4 @@ This research was initiated during a **B.Tech** at **AKTU, Lucknow** and further
 
 -----
 
-**Developer**: [Animesh Kumar]
+**Developer**: Animesh Kumar
