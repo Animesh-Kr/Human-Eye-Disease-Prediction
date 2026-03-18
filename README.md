@@ -1,104 +1,82 @@
-# Human Eye Disease Prediction: Retinal OCT Analysis Platform 👁️
+Yes, you absolutely should include the Hugging Face link. For an ML project of this scale, especially a PhD-level project, hosting weights externally is standard professional practice. It proves you understand how to manage large-scale assets and keeps your GitHub repository clean.
 
-## 📌 Project Overview
+I have rewritten your `README.md` to reflect your updated **EfficientNetV2L + Transformer** architecture and added the Hugging Face section.
 
-This project implements a high-performance **Hybrid Deep Learning** analysis platform designed to automate the diagnosis of retinal diseases using Optical Coherence Tomography (OCT) scans.
+-----
 
-By combining the spatial feature extraction capabilities of **EfficientNetV2** with the robust gradient-boosted decision logic of **XGBoost**, this platform provides a reliable tool for distinguishing between **Normal** retinas and critical pathologies like **CNV**, **DME**, and **Drusen**.
+# 👁️ OCT Retinal AI: Hybrid CNN-Transformer Platform
 
-## 🚀 Key Features
+[](https://www.google.com/search?q=https://huggingface.co/animeshakr/oct-retinal-weights)
+[](https://www.tensorflow.org/)
+[](https://opensource.org/licenses/MIT)
 
-* **Hybrid Architecture**: Utilizes a dual-model approach (CNN + XGBoost) for superior diagnostic accuracy.
-* **Medical Preprocessing**: Integrated **CLAHE** (Contrast Limited Adaptive Histogram Equalization) to sharpen pathological markers like subretinal fluid.
-* **Dynamic Hardware Detection**: Automatically detects and utilizes available GPU acceleration (e.g., NVIDIA RTX 4060) or falls back to CPU.
-* **Clinical Decision Support**: Designed with medical-grade insights and recommendations for each identified pathology.
-* **Memory Optimized**: Custom VRAM management to prevent "Paging File" errors on consumer-grade hardware.
+A high-performance **Hybrid Deep Learning** platform for automated retinal disease diagnosis using Optical Coherence Tomography (OCT) scans. This project implements a state-of-the-art **EfficientNetV2L + Multi-Head Attention + XGBoost** pipeline.
 
 ## 🧠 Model Architecture
 
-The system utilizes a multi-stage classification pipeline:
+This system utilizes a three-stage hybrid classification pipeline designed for maximum clinical reliability:
 
-1. **Spatial Feature Extraction**: A pre-trained **EfficientNetV2-B0** extracts 1280 unique deep-feature vectors from each scan.
-2. **Gradient Boosted Classification**: An **XGBoost** classifier processes these high-dimensional vectors to make the final diagnostic decision.
-3. **Preprocessing Layer**: **CLAHE** enhancement is applied to input images to improve contrast before feature extraction.
+1.  **Spatial Backbone**: **EfficientNetV2-Large** extracts 1280 high-dimensional feature vectors. Blocks 1–5 are frozen to preserve general medical features, while Block 6+ is fine-tuned for retinal pathology.
+2.  **Global Context (Transformer)**: A **4-Block Multi-Head Attention** module with **Learnable Positional Encoding** captures long-range dependencies across retinal layers.
+3.  **Decision Head**: Features are fed into an **XGBoost** classifier (300 trees) to refine decision boundaries and handle class imbalances (e.g., Drusen).
 
-## 🩺 Supported Pathologies
+## 🚀 Key Features
 
-| Disease | Description | Visual Characteristic |
-| --- | --- | --- |
-| **CNV** | Choroidal Neovascularization | Neovascular membrane with subretinal fluid. |
-| **DME** | Diabetic Macular Edema | Retinal thickening with intraretinal fluid. |
-| **DRUSEN** | Early AMD | Presence of multiple yellow drusen deposits. |
-| **NORMAL** | Healthy Retina | Preserved foveal contour without fluid/edema. |
+  * **Explainable AI (XAI)**: Integrated **Grad-CAM** and **SHAP** for spatial and feature-based transparency.
+  * **Uncertainty Quantization**: Uses **MC Dropout** to provide a confidence score for every diagnosis.
+  * **OOD Safety**: **Mahalanobis Distance** check to detect and flag non-retinal or corrupt scans.
+  * **RTX Optimized**: Custom memory management optimized for **NVIDIA RTX 4060** hardware.
 
-## 📂 Dataset Information
+## 📦 Model Weights (Hugging Face)
 
-* **Total Images**: 84,495 High-Resolution scans.
-* **Structure**: 76,515 training images and 10,933 test images.
-* **Source**: [Kaggle - Labeled Optical Coherence Tomography (OCT)](https://www.kaggle.com/datasets/anirudhcv/labeled-optical-coherence-tomography-oct).
+Due to the large size of the high-fidelity model (\~2.07 GB), weights are hosted on the Hugging Face Model Hub.
 
-## 🛠️ Technical Stack
+  * **Repository**: [animeshakr/oct-retinal-weights](https://www.google.com/search?q=https://huggingface.co/animeshakr/oct-retinal-weights)
+  * **Contents**: `.keras` full model, `.weights.h5` legacy weights, XGBoost JSON, and OOD calibration `.npy` files.
 
-* **Languages**: Python 3.10
-* **Deep Learning**: TensorFlow 2.10, Keras
-* **Machine Learning**: XGBoost 2.x, Scikit-Learn
-* **Computer Vision**: OpenCV (CV2)
-* **Deployment**: Streamlit 1.24.0
+## 📊 Performance
+
+| Metric | Accuracy | Macro AUC | Macro F1 | ECE (Cal) |
+| :--- | :--- | :--- | :--- | :--- |
+| **Result** | **95.9%** | **0.9947** | **0.9316** | **0.0017** |
 
 ## 💻 Installation & Usage
 
-### 1. Clone the repository
-
-```bash
-git clone https://github.com/Animesh-Kr/Human-Eye-Disease-Prediction.git
-cd Human-Eye-Disease-Prediction
-
-```
-
-### 2. Set up the Environment
-
-Due to specific version requirements for GPU acceleration, use the following pinned versions:
+### 1\. Set up the Environment
 
 ```bash
 conda create -n GPU_RTX python=3.10
 conda activate GPU_RTX
-pip install tensorflow==2.10.0 streamlit==1.24.0 protobuf==3.20.3 xgboost opencv-python pandas
-
+pip install tensorflow==2.15.0 xboost opencv-python pandas streamlit albumentations
 ```
 
-### 3. Run the Training Pipeline
+### 2\. Download Weights
 
-To retrain the hybrid model on your local hardware (requires dataset in `.cache` or project folder):
+You can use the provided Python script to download weights directly from Hugging Face:
 
 ```bash
-python train_hybrid.py
-
+python -c "from huggingface_hub import hf_hub_download; hf_hub_download(repo_id='animeshakr/oct-retinal-weights', filename='Final_CNN_Transformer_weights.weights.h5', local_dir='models/')"
 ```
 
-### 4. Launch the Diagnostic Dashboard
-
-To run the interactive Streamlit web application:
+### 3\. Launch the Dashboard
 
 ```bash
-python -m streamlit run app.py
-
+streamlit run app.py
 ```
 
-## 📊 Results (Final Test Set)
+## 📂 Repository Structure
 
-* **Overall Accuracy**: 93%
-* **CNV Precision**: 94%
-* **Normal Precision**: 95%
-* **Hardware Benchmark**: Tested on **NVIDIA GeForce RTX 4060 Laptop GPU**.
+  * `app.py`: High-fidelity Streamlit dashboard.
+  * `app_utils.py`: Hybrid architecture and Grad-CAM logic.
+  * `assets/`: Multi-seed validation charts and UMAP visualizations.
+  * `models/`: (Ignored by Git) Directory for weights and calibration files.
 
-## 🤝 Contribution
+## 🎓 Academic Context
 
-This project was developed as part of **B.Tech** at **Dr. A.P.J. Abdul Kalam Technical University (AKTU), Lucknow**.
+This research was initiated during a **B.Tech** at **AKTU, Lucknow** and further refined during an **MSc in Advanced Computer Science** at **Newcastle University**.
 
-## 📧 Contact
+-----
 
-**Developer**: Animesh Kumar
+**Developer**: [Animesh Kumar](https://www.google.com/search?q=https://www.linkedin.com/in/animeshakumar/)
 
-**Education**: MSc Advanced Computer Science, Newcastle University
-
-**LinkedIn**: [Animesh Kumar](https://www.google.com/search?q=https://www.linkedin.com/in/animeshakumar/)
+http://googleusercontent.com/interactive_content_block/0
