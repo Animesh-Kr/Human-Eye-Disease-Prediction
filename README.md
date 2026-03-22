@@ -1,81 +1,182 @@
-# 👁️ OCT Retinal AI: Hybrid CNN-Transformer Platform
+# 👁️ OCT Retinal AI — Retinal Disease Classification
 
-[](https://www.google.com/search?q=https://huggingface.co/animeshakr/oct-retinal-weights)
-[](https://www.tensorflow.org/)
-[](https://opensource.org/licenses/MIT)
+**EfficientNetV2L + 4× Multi-Head Attention + XGBoost Hybrid**  
+MSc Advanced Computer Science — Newcastle University (2025–26)
 
-A high-performance **Hybrid Deep Learning** platform for automated retinal disease diagnosis using Optical Coherence Tomography (OCT) scans. This project implements a state-of-the-art **EfficientNetV2L + Multi-Head Attention + XGBoost** pipeline.
+[![Live Demo](https://img.shields.io/badge/🤗%20HuggingFace-Live%20Demo-yellow)](https://huggingface.co/spaces/animeshakr/oct-retinal-ai)
+[![Model Weights](https://img.shields.io/badge/🤗%20HuggingFace-Model%20Weights-blue)](https://huggingface.co/animeshakr/oct-retinal-weights)
+[![Python](https://img.shields.io/badge/Python-3.11+-green)](https://python.org)
+[![TensorFlow](https://img.shields.io/badge/TensorFlow-2.19.0-orange)](https://tensorflow.org)
+[![License](https://img.shields.io/badge/License-MIT-lightgrey)](LICENSE)
 
-## 🧠 Model Architecture
+---
 
-This system utilizes a three-stage hybrid classification pipeline designed for maximum clinical reliability:
+## Results (5-seed statistical validation)
 
-1.  **Spatial Backbone**: **EfficientNetV2-Large** extracts 1280 high-dimensional feature vectors. Blocks 1–5 are frozen to preserve general medical features, while Block 6+ is fine-tuned for retinal pathology.
-2.  **Global Context (Transformer)**: A **4-Block Multi-Head Attention** module with **Learnable Positional Encoding** captures long-range dependencies across retinal layers.
-3.  **Decision Head**: Features are fed into an **XGBoost** classifier (300 trees) to refine decision boundaries and handle class imbalances (e.g., Drusen).
+| Metric | Mean ± Std |
+|---|---|
+| Accuracy | 95.43% ± 0.27% |
+| Macro AUC-ROC | 0.9941 ± 0.0006 |
+| Macro F1 | 0.9244 ± 0.0047 |
+| Drusen F1 (minority class) | 0.8436 ± 0.0096 |
+| ECE (calibrated) | 0.0024 ± 0.0005 |
+| McNemar p-value | 0.0001 ± 0.0001 (all 5 seeds significant) |
 
-## 🚀 Key Features
+---
 
-  * **Explainable AI (XAI)**: Integrated **Grad-CAM** and **SHAP** for spatial and feature-based transparency.
-  * **Uncertainty Quantization**: Uses **MC Dropout** to provide a confidence score for every diagnosis.
-  * **OOD Safety**: **Mahalanobis Distance** check to detect and flag non-retinal or corrupt scans.
-  * **RTX Optimized**: Custom memory management optimized for **NVIDIA RTX 4060** hardware.
+## Architecture
 
-## 📦 Model Weights (Hugging Face)
-
-Due to the large size of the high-fidelity model (\~2.07 GB), weights are hosted on the Hugging Face Model Hub.
-
-  * **Repository**: [animeshakr/oct-retinal-weights](https://huggingface.co/animeshakr/oct-retinal-weights)
-  * **Contents**: `.keras` full model, `.weights.h5` legacy weights, XGBoost JSON, and OOD calibration `.npy` files.
-
-## 📊 Performance
-
-| Metric | Accuracy | Macro AUC | Macro F1 | ECE (Cal) |
-| :--- | :--- | :--- | :--- | :--- |
-| **Result** | **95.9%** | **0.9947** | **0.9316** | **0.0017** |
-
-## 💻 Installation & Usage
-
-### 1\. Set up the Environment
-
-```bash
-conda create -n GPU_RTX python=3.10
-conda activate GPU_RTX
-pip install tensorflow==2.15.0 xboost opencv-python pandas streamlit albumentations
+```
+OCT Scan (224×224×3)
+    → EfficientNetV2L backbone (118.5M params, ImageNet pretrained)
+       Blocks 1–5: frozen  |  Block 6+: fine-tuned
+    → Patch reshape: 7×7×1280 → 49 tokens
+    → Linear projection: 1280 → 256-d
+    → Learnable Positional Encoding
+    → 4× Multi-Head Attention (16 heads, key_dim=16)
+    → GlobalAvgPool1D → 256-d feature vector
+    → XGBoost hybrid head (300 trees, max_depth=4)
+    → Temperature scaling (T≈1.05)
+    → CNV / DME / DRUSEN / NORMAL
 ```
 
-### 2\. Download Weights
+---
 
-You can use the provided Python script to download weights directly from Hugging Face:
+## Clinical Safety Features
 
-```bash
-python -c "from huggingface_hub import hf_hub_download; hf_hub_download(repo_id='animeshakr/oct-retinal-weights', filename='Final_CNN_Transformer_weights.weights.h5', local_dir='models/')"
+| Feature | Method | Purpose |
+|---|---|---|
+| OOD Detection | Mahalanobis distance | Rejects non-retinal / corrupt scans |
+| Uncertainty | MC Dropout (20 passes) | Flags scans needing specialist review |
+| Calibration | Temperature scaling | Corrects overconfident probabilities |
+| Explainability | Grad-CAM + SHAP | Shows *why* the model predicts each class |
+
+---
+
+## Repository Structure
+
+```
+├── app.py                    # Streamlit dashboard (two-tier: local GPU + HuggingFace demo)
+├── generate_demo.py          # Precompute demo results for HuggingFace deployment
+├── Human-Eye.ipynb           # Full training pipeline — Phases 1–6
+├── requirements.txt          # HuggingFace deployment (lightweight)
+├── requirements_local.txt    # Local GPU inference (full stack)
+├── setup_repos.py            # Upload weights to HuggingFace + push to GitHub
+└── assets/
+    ├── gradcam_panel.png
+    ├── shap_summary.png
+    ├── attention_heads_*.png
+    ├── umap_2d_features.png
+    ├── umap_3d_features.html
+    ├── uncertainty_landscape.html
+    ├── multiseed_violin.png
+    ├── multiseed_aggregate.csv
+    └── class_distribution.png
 ```
 
-### 3\. Launch the Dashboard
+---
 
+## Setup — Local GPU Inference (RTX 4060)
+
+### Requirements
+- Python **3.11+** (required for TF 2.19 / Keras 3.x)
+- NVIDIA GPU with CUDA support
+
+### Install
+```bash
+conda create -n oct_dashboard python=3.11 -y
+conda activate oct_dashboard
+pip install -r requirements_local.txt
+```
+
+### Download model weights
+```python
+from huggingface_hub import hf_hub_download
+
+# Download all required files into models/
+files = [
+    'Final_CNN_Transformer.keras',
+    'Final_XGBoost_Hybrid.json',
+    'ood_train_mean.npy',
+    'ood_cov_inv.npy',
+    'ood_threshold.npy',
+    'temperature.npy',
+]
+for f in files:
+    hf_hub_download(
+        repo_id='animeshakr/oct-retinal-weights',
+        filename=f,
+        local_dir='models/'
+    )
+```
+
+### Run dashboard
 ```bash
 streamlit run app.py
 ```
 
-## 📥 Model Weights & Assets
-The trained weights and calibration files for this project are hosted on Hugging Face due to their large size (~2.07 GB).
+---
 
-**Download weights here**: [animeshakr/oct-retinal-weights](https://huggingface.co/animeshakr/oct-retinal-weights)
+## Training Pipeline (Human-Eye.ipynb)
 
-Place the downloaded files into the `models/` directory before running the dashboard.
+| Phase | Description |
+|---|---|
+| Phase 1 | Data pipeline — Kermany OCT dataset, augmentation, class weights |
+| Phase 2 | EfficientNetV2L + Transformer architecture definition |
+| Phase 3 | Optuna HPO (10 trials) + Phase A/B training + XGBoost head |
+| Phase 4 | OOD detection + MC Dropout uncertainty + temperature calibration |
+| Phase 5 | Grad-CAM, SHAP, UMAP, attention maps, ablation, McNemar test |
+| Phase 6 | 5-seed statistical validation — mean ± std reporting |
 
-## 📂 Repository Structure
+---
 
-  * `app.py`: High-fidelity Streamlit dashboard.
-  * `app_utils.py`: Hybrid architecture and Grad-CAM logic.
-  * `assets/`: Multi-seed validation charts and UMAP visualizations.
-  * `models/`: (Ignored by Git) Directory for weights and calibration files.
+## Dataset
 
-## 🎓 Academic Context
+Kermany et al. (Cell 2018) — 84,495 OCT B-scans · 4 classes
 
-This research was initiated during a **B.Tech** at **AKTU, Lucknow** and further refined during an **MSc in Advanced Computer Science** at **Newcastle University**.
+| Class | Train | Test | Clinical meaning |
+|---|---|---|---|
+| CNV | 37,206 | 3,960 | Choroidal neovascularisation — wet AMD, urgent treatment needed |
+| DME | 11,349 | 1,101 | Diabetic macular edema — anti-VEGF or laser treatment |
+| DRUSEN | 8,617 | 1,086 | Early AMD biomarker — lifestyle intervention window |
+| NORMAL | 26,315 | 1,786 | Healthy retina |
 
------
+---
 
-**Developer**: Animesh Kumar
+## HuggingFace Deployment
+
+```bash
+# Generate precomputed demo results (run once with full model locally)
+python generate_demo.py
+
+# Upload demo_results.json + assets/ + app.py + requirements.txt to HuggingFace Space
+# Set environment variable in Space settings: DEMO_MODE = true
+```
+
+---
+
+## Links
+
+- 🤗 Live demo: https://huggingface.co/spaces/animeshakr/oct-retinal-ai
+- 🤗 Model weights: https://huggingface.co/animeshakr/oct-retinal-weights
+- 📊 Dataset: [Kermany et al., Cell 2018](https://www.cell.com/cell/fulltext/S0092-8674(18)30154-5)
+
+---
+
+## Citation
+
+```bibtex
+@article{kermany2018identifying,
+  title={Identifying medical diagnoses and treatable diseases by image-based deep learning},
+  author={Kermany, Daniel S and others},
+  journal={Cell},
+  volume={172},
+  number={5},
+  pages={1122--1131},
+  year={2018}
+}
+```
+
+---
+
+**Author:** Animesh Kumar — MSc Advanced Computer Science, Newcastle University (2025–26)
