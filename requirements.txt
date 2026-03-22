@@ -1,22 +1,12 @@
-# Core Frameworks
-tensorflow==2.15.0
-xgboost==2.0.3
-streamlit==1.31.1
-
-# Image Processing & Computer Vision
+# ── HuggingFace Spaces (DEMO_MODE=true) — lightweight, no TF/Keras ────────────
+streamlit>=1.55.0
+plotly>=5.19.0
+pandas>=2.0.0
+numpy>=1.24.3
 opencv-python-headless
 Pillow
-albumentations==1.4.0
 scipy
-
-# Data Handling & Plotting
-numpy==1.24.3
-pandas
-plotly
-
-# Cloud & Integration
+scikit-learn
 huggingface_hub
 python-dotenv
-
-# Utilities
 protobuf<5
