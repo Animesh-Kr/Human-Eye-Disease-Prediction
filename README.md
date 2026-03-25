@@ -168,14 +168,15 @@ python generate_demo.py
 ## Citation
 
 ```bibtex
-@article{kermany2018identifying,
-  title={Identifying medical diagnoses and treatable diseases by image-based deep learning},
-  author={Kermany, Daniel S and others},
-  journal={Cell},
-  volume={172},
-  number={5},
-  pages={1122--1131},
-  year={2018}
+@software{kumar_2026_19224304,
+  author       = {Animesh Kumar},
+  title        = {Human Eye Disease Prediction: Hybrid CNN-Transformer Platform},
+  month        = mar,
+  year         = 2026,
+  publisher    = {Zenodo},
+  version      = {v1.0.0},
+  doi          = {10.5281/zenodo.19224304},
+  url          = {https://doi.org/10.5281/zenodo.19224304}
 }
 ```
 
