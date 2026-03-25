@@ -5,6 +5,7 @@ MSc Advanced Computer Science — Newcastle University (2025–26)
 
 [![Live Demo](https://img.shields.io/badge/🤗%20HuggingFace-Live%20Demo-yellow)](https://huggingface.co/spaces/animeshakr/oct-retinal-ai)
 [![Model Weights](https://img.shields.io/badge/🤗%20HuggingFace-Model%20Weights-blue)](https://huggingface.co/animeshakr/oct-retinal-weights)
+[![ORCID](https://img.shields.io/badge/ORCID-0009--0003--0608--7004-brightgreen)](https://orcid.org/0009-0003-0608-7004)
 [![Python](https://img.shields.io/badge/Python-3.11+-green)](https://python.org)
 [![TensorFlow](https://img.shields.io/badge/TensorFlow-2.19.0-orange)](https://tensorflow.org)
 [![License](https://img.shields.io/badge/License-MIT-lightgrey)](LICENSE)
@@ -179,4 +180,8 @@ python generate_demo.py
 
 ---
 
-**Author:** Animesh Kumar — MSc Advanced Computer Science, Newcastle University (2025–26)
+## 👤 Author
+
+**Animesh Kumar**
+* MSc Advanced Computer Science, Newcastle University (2025–26)
+* ORCID: [0009-0003-0608-7004](https://orcid.org/0009-0003-0608-7004)
