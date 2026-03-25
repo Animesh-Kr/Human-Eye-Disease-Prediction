@@ -3,6 +3,7 @@
 **EfficientNetV2L + 4× Multi-Head Attention + XGBoost Hybrid**  
 MSc Advanced Computer Science — Newcastle University (2025–26)
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.19224304.svg)](https://doi.org/10.5281/zenodo.19224304)
 [![Live Demo](https://img.shields.io/badge/🤗%20HuggingFace-Live%20Demo-yellow)](https://huggingface.co/spaces/animeshakr/oct-retinal-ai)
 [![Model Weights](https://img.shields.io/badge/🤗%20HuggingFace-Model%20Weights-blue)](https://huggingface.co/animeshakr/oct-retinal-weights)
 [![ORCID](https://img.shields.io/badge/ORCID-0009--0003--0608--7004-brightgreen)](https://orcid.org/0009-0003-0608-7004)
