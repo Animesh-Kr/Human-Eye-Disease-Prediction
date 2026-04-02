@@ -6,7 +6,6 @@ MSc Advanced Computer Science — Newcastle University (2025–26)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.19224303.svg)](https://doi.org/10.5281/zenodo.19224303)
 [![Live Demo](https://img.shields.io/badge/🤗%20HuggingFace-Live%20Demo-yellow)](https://huggingface.co/spaces/animeshakr/oct-retinal-ai)
 [![Model Weights](https://img.shields.io/badge/🤗%20HuggingFace-Model%20Weights-blue)](https://huggingface.co/animeshakr/oct-retinal-weights)
-[![Preprint](https://img.shields.io/badge/medRxiv-Preprint-red)](https://www.medrxiv.org/content/10.1101/2026.03.28.349562)
 [![ORCID](https://img.shields.io/badge/ORCID-0009--0003--0608--7004-brightgreen)](https://orcid.org/0009-0003-0608-7004)
 [![TensorFlow](https://img.shields.io/badge/TensorFlow-2.19.0-orange)](https://tensorflow.org)
 [![License](https://img.shields.io/badge/License-MIT-lightgrey)](LICENSE)
@@ -175,7 +174,6 @@ Kermany et al. (Cell 2018) — 84,495 OCT B-scans · 4 classes
 
 - 🤗 Live demo: https://huggingface.co/spaces/animeshakr/oct-retinal-ai
 - 🤗 Model weights: https://huggingface.co/animeshakr/oct-retinal-weights
-- 📄 Preprint: https://www.medrxiv.org/content/10.1101/2026.03.28.349562
 - 📦 Zenodo archive: https://doi.org/10.5281/zenodo.19224303
 - 👤 ORCID: https://orcid.org/0009-0003-0608-7004
 
