@@ -157,6 +157,95 @@ DEMO_MODE=false streamlit run app.py
 
 ---
 
+# Model Compression & Edge Deployment
+
+## ONNX Export + INT8 Quantisation
+
+The full Keras model (EfficientNetV2L + Transformer + XGBoost) is exported to
+ONNX and compressed via INT8 dynamic post-training quantisation using ONNX
+Runtime. This enables CPU-only deployment without a GPU — relevant for
+point-of-care clinical settings and edge devices.
+
+### Run the Benchmark
+
+```bash
+# Install dependencies
+pip install tf2onnx onnxruntime-gpu onnxruntime onnx
+
+# Download weights first
+python -c "
+from huggingface_hub import hf_hub_download
+import os; os.makedirs('models', exist_ok=True)
+for f in ['Final_CNN_Transformer.keras']:
+    hf_hub_download('animeshakr/oct-retinal-weights', f, local_dir='models/')
+"
+
+# Run export + quantisation + benchmark
+python quantise_benchmark.py --weights_dir models/ --n_runs 100
+```
+
+### Inference Latency Benchmark
+
+> Hardware: NVIDIA RTX 4060 (GPU) / Intel Core CPU · Batch size: 1 · 100 runs
+
+| Backend | Mean (ms) | P50 (ms) | P95 (ms) | Notes |
+|---|---|---|---|---|
+| Keras TF (GPU FP32) | — | — | — | Fill after running |
+| ONNX Runtime (GPU FP32) | — | — | — | Fill after running |
+| ONNX Runtime (CPU FP32) | — | — | — | Fill after running |
+| ONNX Runtime (CPU INT8) | — | — | — | Fill after running |
+
+*Run `python quantise_benchmark.py` to populate this table with your hardware results.*
+
+### Model Size Comparison
+
+| Format | Size | Reduction |
+|---|---|---|
+| Keras `.keras` (original) | 2,070 MB | baseline |
+| ONNX FP32 | ~2,100 MB | — |
+| ONNX INT8 (quantised) | ~530 MB | ~75% smaller |
+
+### Quantised Weights
+
+The INT8 quantised ONNX model is available on HuggingFace:
+
+```python
+from huggingface_hub import hf_hub_download
+
+hf_hub_download(
+    repo_id="animeshakr/oct-retinal-weights",
+    filename="oct_retinal_int8.onnx",
+    local_dir="models/"
+)
+```
+
+### Load and Run INT8 Model
+
+```python
+import onnxruntime as ort
+import numpy as np
+
+sess = ort.InferenceSession(
+    "models/oct_retinal_int8.onnx",
+    providers=["CPUExecutionProvider"]   # runs on CPU — no GPU needed
+)
+
+input_name = sess.get_inputs()[0].name
+img = np.random.rand(1, 224, 224, 3).astype(np.float32)  # replace with real OCT
+logits = sess.run(None, {input_name: img})[0]
+
+CLASSES = ["CNV", "DME", "DRUSEN", "NORMAL"]
+pred    = CLASSES[np.argmax(logits[0])]
+conf    = float(np.max(logits[0]))
+print(f"Prediction: {pred}  Confidence: {conf:.4f}")
+```
+
+> **Note on XGBoost head:** The INT8 ONNX model quantises the
+> EfficientNetV2L + Transformer backbone only. For full hybrid inference,
+> extract the 256-d embedding from the ONNX model and pass it to
+> `Final_XGBoost_Hybrid.json` via the XGBoost Python API.
+> See `quantise_benchmark.py` for the complete pipeline.
+
 ## Dataset
 
 Kermany et al. (Cell 2018) — 84,495 OCT B-scans · 4 classes
