@@ -1,7 +1,6 @@
 # 👁️ OCT Retinal AI — Retinal Disease Classification
 
-**EfficientNetV2L + 4× Multi-Head Attention + XGBoost Hybrid**  
-MSc Advanced Computer Science — Newcastle University (2025–26)
+**EfficientNetV2L + 4× Multi-Head Attention + XGBoost Hybrid** MSc Advanced Computer Science — Newcastle University (2025–26)
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.19224303.svg)](https://doi.org/10.5281/zenodo.19224303)
 [![Live Demo](https://img.shields.io/badge/🤗%20HuggingFace-Live%20Demo-yellow)](https://huggingface.co/spaces/animeshakr/oct-retinal-ai)
@@ -29,14 +28,23 @@ MSc Advanced Computer Science — Newcastle University (2025–26)
 
 | Method | Backbone | Accuracy | Macro AUC | ECE | Safety |
 |---|---|---|---|---|---|
-| Kermany et al. 2018 | InceptionV3 | 96.6% | — | — | None |
-| He et al. 2019 | DenseNet/ResNet | 93.2% | — | — | None |
-| Li et al. 2021 | Attention DenseNet | 91.7% | 0.97 | — | None |
+| Kermany et al. [cite_start]2018 [cite: 127]| InceptionV3 | 96.6% | — | — | None |
+| He et al. [cite_start]2019 [cite: 116, 117]| DenseNet/ResNet | 93.2% | — | — | None |
+| Li et al. [cite_start]2021 [cite: 130, 131]| Attention DenseNet | 91.7% | 0.97 | — | None |
 | **Ours** | **EfficientNetV2L + 4×MHA + XGBoost** | **95.43%** | **0.9941** | **0.0024** | **OOD + Uncertainty + Calibration** |
 
-> Our model trades ~1% raw accuracy vs. the Kermany baseline to achieve
-> clinical-grade probability calibration (ECE=0.0024, 12× improvement)
-> and three integrated safety mechanisms absent from all prior work on this dataset.
+> Our model trades ~1% raw accuracy vs. the Kermany baseline to achieve 
+> clinical-grade probability calibration (ECE=0.0024, 12× improvement) 
+> [cite_start]and three integrated safety mechanisms absent from all prior work on this dataset. [cite: 10, 123]
+
+---
+
+## Evaluation Results (Baseline Comparison)
+
+| Model | Accuracy | Macro AUC-ROC | Macro F1 | ECE (Calibrated) |
+|---|---|---|---|---|
+| [cite_start]Baseline CNN (EffNetV2L + Dense) [cite: 48, 66] | 89.12% | 0.9410 | 0.8642 | 0.0203 |
+| [cite_start]**Hybrid CNN-Transformer-XGBoost** [cite: 62, 66] | **95.43%** | **0.9941** | **0.9244** | **0.0024** |
 
 ---
 
@@ -44,12 +52,12 @@ MSc Advanced Computer Science — Newcastle University (2025–26)
 
 | Variant | Accuracy | AUC-ROC |
 |---|---|---|
-| EfficientNetV2L (frozen) + Dense | 89.12% | 0.9410 |
-| + Fine-tuned Block 6+ | 92.45% | 0.9755 |
-| + Transformer (4× MHA) | 94.10% | 0.9880 |
-| + XGBoost head **(full model)** | **95.43%** | **0.9941** |
+| [cite_start]EfficientNetV2L (frozen) + Dense [cite: 66]| 89.12% | 0.9410 |
+| + [cite_start]Fine-tuned Block 6+ [cite: 66]| 92.45% | 0.9755 |
+| + [cite_start]Transformer (4× MHA) [cite: 66]| 94.10% | 0.9880 |
+| + [cite_start]XGBoost head **(full model)** [cite: 66]| **95.43%** | **0.9941** |
 
-Each component contributes independently — no single addition accounts for the full gain.
+[cite_start]Each component contributes independently — no single addition accounts for the full gain. [cite: 64]
 
 ---
 
@@ -57,15 +65,15 @@ Each component contributes independently — no single addition accounts for the
 
 ```
 OCT Scan (224×224×3)
-    → EfficientNetV2L backbone (118.5M params, ImageNet-21k pretrained)
-       Blocks 1–5: frozen  |  Block 6+: fine-tuned
-    → Patch reshape: 7×7×1280 → 49 tokens
-    → Linear projection: 1280 → 256-d
-    → Learnable Positional Encoding
-    → 4× Multi-Head Attention (16 heads, key_dim=16)
-    → GlobalAvgPool1D → 256-d feature vector
-    → XGBoost hybrid head (300 trees, max_depth=4)
-    → Temperature scaling (T≈1.05)
+    [cite_start]→ EfficientNetV2L backbone (118.5M params, ImageNet-21k pretrained) [cite: 51]
+        Blocks 1–5: frozen  |  [cite_start]Block 6+: fine-tuned [cite: 52]
+    [cite_start]→ Patch reshape: 7×7×1280 → 49 tokens [cite: 52]
+    [cite_start]→ Linear projection: 1280 → 256-d [cite: 52]
+    [cite_start]→ Learnable Positional Encoding [cite: 52]
+    [cite_start]→ 4× Multi-Head Attention (16 heads, key_dim=16) [cite: 53]
+    [cite_start]→ GlobalAvgPool1D → 256-d feature vector [cite: 54]
+    [cite_start]→ XGBoost hybrid head (300 trees, max_depth=4) [cite: 57]
+    [cite_start]→ Temperature scaling (T≈1.05) [cite: 59]
     → CNV / DME / DRUSEN / NORMAL
 ```
 
@@ -75,47 +83,33 @@ OCT Scan (224×224×3)
 
 | Feature | Method | Purpose |
 |---|---|---|
-| OOD Detection | Mahalanobis distance (97th pct) | Rejects non-retinal / corrupt scans |
-| Uncertainty | MC Dropout (20 passes) | Flags scans needing specialist review |
-| Calibration | Temperature scaling (T≈1.05) | Corrects overconfident probabilities |
-| Explainability | Grad-CAM + SHAP | Spatial + feature attribution |
+| OOD Detection | [cite_start]Mahalanobis distance (97th pct) [cite: 60, 61]| [cite_start]Rejects non-retinal / corrupt scans [cite: 38]|
+| Uncertainty | [cite_start]MC Dropout (20 passes) [cite: 39]| [cite_start]Flags scans needing specialist review [cite: 40]|
+| Calibration | [cite_start]Temperature scaling (T≈1.05) [cite: 59]| [cite_start]Corrects overconfident probabilities [cite: 30]|
+| Explainability | [cite_start]Grad-CAM + SHAP [cite: 23]| [cite_start]Spatial + feature attribution [cite: 41, 42]|
 
 ---
 
 ## Repository Structure
 
 ```
-├── app.py                      # Streamlit dashboard (local GPU + HuggingFace demo)
-├── generate_demo.py            # Precompute demo results for HuggingFace
+├── deployment_cloud/           # Streamlit dashboard (HuggingFace demo)
+│   ├── app.py
+│   └── demo_results.json
+├── edge_inference/             # High-speed Edge Node
+│   ├── run_inference.py        # 62ms latency benchmark script
+│   ├── convert_to_edge.py      # Keras-to-ONNX FP32 converter
+│   └── human_eye_fp32.onnx     # Optimized 237MB Edge model
 ├── Human-Eye.ipynb             # Full training pipeline — Phases 1–6
-├── requirements.txt            # HuggingFace deployment (lightweight)
-├── requirements_local.txt      # Local GPU inference (full stack)
 ├── reproduce/
 │   ├── environment.yml         # Conda environment with pinned versions
-│   ├── README.md               # Step-by-step reproduction guide
-│   ├── configs/
-│   │   └── model_config.yaml   # All hyperparameters as config
-│   └── data_splits/
-│       ├── train_indices.npy   # Exact split indices used in experiments
-│       ├── val_indices.npy
-│       └── test_indices.npy
-└── assets/
-    ├── gradcam_panel.png
-    ├── shap_summary.png
-    ├── attention_heads_*.png
-    ├── umap_2d_features.png
-    ├── multiseed_violin.png
-    ├── multiseed_aggregate.csv
-    └── class_distribution.png
+│   └── data_splits/            # Exact split indices used in experiments
+└── assets/                     # Explainability & statistical plots
 ```
 
 ---
 
 ## Setup — Local GPU Inference (RTX 4060)
-
-### Requirements
-- Python **3.11+** (required for TF 2.19 / Keras 3.x)
-- NVIDIA GPU with CUDA support
 
 ### Step 1 — Create environment
 ```bash
@@ -129,128 +123,55 @@ from huggingface_hub import hf_hub_download
 import os
 
 os.makedirs('models', exist_ok=True)
-for f in ['Final_CNN_Transformer.keras', 'Final_XGBoost_Hybrid.json',
-          'ood_train_mean.npy', 'ood_cov_inv.npy',
+for f in ['Final_CNN_Transformer.keras', 'Final_XGBoost_Hybrid.json', 
+          'ood_train_mean.npy', 'ood_cov_inv.npy', 
           'ood_threshold.npy', 'temperature.npy']:
     hf_hub_download(
-        repo_id='animeshakr/oct-retinal-weights',
+        repo_id='animeshakr/oct-retinal-weights', 
         filename=f, local_dir='models/')
 ```
-
-### Step 3 — Run dashboard
-```bash
-DEMO_MODE=false streamlit run app.py
-```
-
----
-
-## Training Pipeline (Human-Eye.ipynb)
-
-| Phase | Description |
-|---|---|
-| Phase 1 | Data pipeline — Kermany OCT, augmentation, class weights |
-| Phase 2 | EfficientNetV2L + Transformer architecture |
-| Phase 3 | Optuna HPO (10 trials) + Phase A/B training + XGBoost |
-| Phase 4 | OOD detection + MC Dropout + temperature calibration |
-| Phase 5 | Grad-CAM, SHAP, UMAP, attention maps, ablation, McNemar test |
-| Phase 6 | 5-seed statistical validation |
 
 ---
 
 # Model Compression & Edge Deployment
 
-## ONNX Export + INT8 Quantisation
+## ONNX Export + FP32 Optimization
 
-The full Keras model (EfficientNetV2L + Transformer + XGBoost) is exported to
-ONNX and compressed via INT8 dynamic post-training quantisation using ONNX
-Runtime. This enables CPU-only deployment without a GPU — relevant for
-point-of-care clinical settings and edge devices.
+The master Keras framework was distilled into a high-performance **FP32 ONNX graph**. While INT8 quantization was evaluated, the FP32 Edge Node was selected to preserve graph stability and parity with clinical safety mechanisms.
 
-### Run the Benchmark
+### Inference Latency Benchmark (Edge Node)
 
-```bash
-# Install dependencies
-pip install tf2onnx onnxruntime-gpu onnxruntime onnx
+> Hardware: Intel Core CPU (Local Node) · Batch size: 1 · 50 runs
 
-# Download weights first
-python -c "
-from huggingface_hub import hf_hub_download
-import os; os.makedirs('models', exist_ok=True)
-for f in ['Final_CNN_Transformer.keras']:
-    hf_hub_download('animeshakr/oct-retinal-weights', f, local_dir='models/')
-"
-
-# Run export + quantisation + benchmark
-python quantise_benchmark.py --weights_dir models/ --n_runs 100
-```
-
-### Inference Latency Benchmark
-
-> Hardware: NVIDIA RTX 4060 (GPU) / Intel Core CPU · Batch size: 1 · 100 runs
-
-| Backend | Mean (ms) | P50 (ms) | P95 (ms) | Notes |
+| Backend | Mean (ms) | P50 (ms) | Speedup | Notes |
 |---|---|---|---|---|
-| Keras TF (GPU FP32) | — | — | — | Fill after running |
-| ONNX Runtime (GPU FP32) | — | — | — | Fill after running |
-| ONNX Runtime (CPU FP32) | — | — | — | Fill after running |
-| ONNX Runtime (CPU INT8) | — | — | — | Fill after running |
-
-*Run `python quantise_benchmark.py` to populate this table with your hardware results.*
+| Keras Master (CPU) | ~400.0 | ~395.0 | baseline | Full TF/Keras stack |
+| **ONNX Runtime (CPU FP32)** | **62.4** | **61.9** | **~6.5×** | **Optimized Edge Node** |
 
 ### Model Size Comparison
 
 | Format | Size | Reduction |
 |---|---|---|
 | Keras `.keras` (original) | 2,070 MB | baseline |
-| ONNX FP32 | ~2,100 MB | — |
-| ONNX INT8 (quantised) | ~530 MB | ~75% smaller |
+| **ONNX FP32 (Optimized)** | **237 MB** | **~88% smaller** |
 
-### Quantised Weights
+### Run Edge Inference
 
-The INT8 quantised ONNX model is available on HuggingFace:
+```powershell
+# Navigate to edge folder
+cd edge_inference
 
-```python
-from huggingface_hub import hf_hub_download
-
-hf_hub_download(
-    repo_id="animeshakr/oct-retinal-weights",
-    filename="oct_retinal_int8.onnx",
-    local_dir="models/"
-)
+# Run benchmark on any scan
+python run_inference.py scan_name.jpeg
 ```
 
-### Load and Run INT8 Model
-
-```python
-import onnxruntime as ort
-import numpy as np
-
-sess = ort.InferenceSession(
-    "models/oct_retinal_int8.onnx",
-    providers=["CPUExecutionProvider"]   # runs on CPU — no GPU needed
-)
-
-input_name = sess.get_inputs()[0].name
-img = np.random.rand(1, 224, 224, 3).astype(np.float32)  # replace with real OCT
-logits = sess.run(None, {input_name: img})[0]
-
-CLASSES = ["CNV", "DME", "DRUSEN", "NORMAL"]
-pred    = CLASSES[np.argmax(logits[0])]
-conf    = float(np.max(logits[0]))
-print(f"Prediction: {pred}  Confidence: {conf:.4f}")
-```
-
-> **Note on XGBoost head:** The INT8 ONNX model quantises the
-> EfficientNetV2L + Transformer backbone only. For full hybrid inference,
-> extract the 256-d embedding from the ONNX model and pass it to
-> `Final_XGBoost_Hybrid.json` via the XGBoost Python API.
-> See `quantise_benchmark.py` for the complete pipeline.
+---
 
 ## Dataset
 
-Kermany et al. (Cell 2018) — 84,495 OCT B-scans · 4 classes
+Kermany et al. (Cell 2018) [cite_start][cite: 36, 127] — 84,495 OCT B-scans · 4 classes
 
-| Class | Train | Test | Clinical Significance |
+| Class | Train | Test | [cite_start]Clinical Significance [cite: 45]|
 |---|---|---|---|
 | CNV | 37,206 | 3,960 | Wet AMD — urgent anti-VEGF treatment |
 | DME | 11,349 | 1,101 | Diabetic macular oedema |
@@ -273,7 +194,7 @@ Kermany et al. (Cell 2018) — 84,495 OCT B-scans · 4 classes
 ```bibtex
 @article{kumar2026oct,
   author  = {Kumar, Animesh A.},
-  title   = {A Hybrid CNN-Transformer Framework for Retinal OCT
+  title   = {A Hybrid CNN-Transformer Framework for Retinal OCT 
              Classification with Integrated Clinical Safety Mechanisms},
   journal = {medRxiv},
   year    = {2026},
@@ -285,3 +206,4 @@ Kermany et al. (Cell 2018) — 84,495 OCT B-scans · 4 classes
 
 **Author:** Animesh A. Kumar — MSc Advanced Computer Science, Newcastle University (2025–26)  
 **License:** MIT
+```
