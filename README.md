@@ -217,7 +217,7 @@ Kermany et al. (Cell 2018) — 84,495 OCT B-scans, 4 classes.
 - 🤗 Model weights: https://huggingface.co/animeshakr/oct-retinal-weights
 - 📦 Zenodo archive: https://doi.org/10.5281/zenodo.19224303
 - 👤 ORCID: https://orcid.org/0009-0003-0608-7004
-
+- 🚀 REST API: https://animeshakr-oct-retinal-api.hf.space/docs
 ---
 
 ## Citation
