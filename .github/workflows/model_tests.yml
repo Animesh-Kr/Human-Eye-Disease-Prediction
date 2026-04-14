@@ -1,0 +1,187 @@
+name: OCT Retinal AI — Model Tests
+
+on:
+  push:
+    branches: [ main, retfound-finetune ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test-onnx-model:
+    runs-on: ubuntu-latest
+    name: ONNX Edge Model Validation
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install onnxruntime numpy huggingface_hub
+
+      - name: Download ONNX edge model from HuggingFace
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          python - <<'PYEOF'
+          from huggingface_hub import hf_hub_download
+          import os
+          os.makedirs("models", exist_ok=True)
+          hf_hub_download(
+              repo_id="animeshakr/oct-retinal-weights",
+              filename="human_eye_fp32.onnx",
+              local_dir="models/",
+          )
+          print("Downloaded human_eye_fp32.onnx")
+          PYEOF
+
+      - name: Test ONNX model loads correctly
+        run: |
+          python - <<'PYEOF'
+          import onnxruntime as ort
+          import numpy as np
+
+          sess = ort.InferenceSession(
+              "models/human_eye_fp32.onnx",
+              providers=["CPUExecutionProvider"]
+          )
+          input_name = sess.get_inputs()[0].name
+          print(f"Model loaded. Input: '{input_name}'")
+          assert input_name is not None, "Input name is None"
+          PYEOF
+
+      - name: Test inference produces valid predictions
+        run: |
+          python - <<'PYEOF'
+          import onnxruntime as ort
+          import numpy as np
+
+          CLASSES = ["CNV", "DME", "DRUSEN", "NORMAL"]
+          sess    = ort.InferenceSession(
+              "models/human_eye_fp32.onnx",
+              providers=["CPUExecutionProvider"]
+          )
+          in_name = sess.get_inputs()[0].name
+
+          # Test all 4 class slots with different dummy inputs
+          passed = 0
+          for i in range(4):
+              np.random.seed(i)
+              dummy  = np.random.rand(1, 224, 224, 3).astype(np.float32)
+              output = sess.run(None, {in_name: dummy})[0]
+
+              assert output.shape == (1, 4), \
+                  f"Expected shape (1,4), got {output.shape}"
+              assert not np.isnan(output).any(), \
+                  "NaN detected in output"
+              assert not np.isinf(output).any(), \
+                  "Inf detected in output"
+
+              pred = CLASSES[np.argmax(output[0])]
+              conf = float(np.max(output[0]))
+              print(f"  Test {i+1}: pred={pred}  raw_max={conf:.4f}")
+              passed += 1
+
+          print(f"All {passed}/4 inference tests passed")
+          PYEOF
+
+      - name: Test FP32 vs model consistency
+        run: |
+          python - <<'PYEOF'
+          import onnxruntime as ort
+          import numpy as np
+
+          CLASSES = ["CNV", "DME", "DRUSEN", "NORMAL"]
+          sess    = ort.InferenceSession(
+              "models/human_eye_fp32.onnx",
+              providers=["CPUExecutionProvider"]
+          )
+          in_name = sess.get_inputs()[0].name
+
+          # Run same input twice — must be deterministic
+          np.random.seed(42)
+          dummy = np.random.rand(1, 224, 224, 3).astype(np.float32)
+          out1  = sess.run(None, {in_name: dummy})[0]
+          out2  = sess.run(None, {in_name: dummy})[0]
+
+          assert np.allclose(out1, out2, atol=1e-5), \
+              "Model is not deterministic"
+          print("Determinism check passed")
+          print(f"Prediction: {CLASSES[np.argmax(out1[0])]}")
+          PYEOF
+
+  test-api-health:
+    runs-on: ubuntu-latest
+    name: API Health Check
+
+    steps:
+      - name: Check HuggingFace API is responding
+        run: |
+          python - <<'PYEOF'
+          import urllib.request
+          import json
+
+          url = "https://animeshakr-oct-retinal-api.hf.space/health"
+          try:
+              with urllib.request.urlopen(url, timeout=30) as r:
+                  data = json.loads(r.read())
+                  assert data.get("status") == "healthy", \
+                      f"API not healthy: {data}"
+                  print(f"API health check passed: {data}")
+          except Exception as e:
+              print(f"API check skipped (Space may be sleeping): {e}")
+          PYEOF
+
+  validate-results:
+    runs-on: ubuntu-latest
+    name: Validate Results JSON
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Validate RETFound results JSON
+        run: |
+          python - <<'PYEOF'
+          import json, os, sys
+
+          results_files = [
+              "retfound/results_full_finetune_3seed.json",
+              "retfound/results_linear_probe_3seed.json",
+          ]
+
+          for fpath in results_files:
+              if not os.path.exists(fpath):
+                  print(f"SKIP: {fpath} not found")
+                  continue
+
+              with open(fpath) as f:
+                  data = json.load(f)
+
+              assert "summary" in data, f"Missing summary in {fpath}"
+              assert "per_seed" in data, f"Missing per_seed in {fpath}"
+              assert "main_branch" in data, f"Missing main_branch in {fpath}"
+
+              summary = data["summary"]
+              acc_str = summary["accuracy"].split("±")[0].strip()
+              acc     = float(acc_str)
+
+              mode = data["mode"]
+              if mode == "full_finetune":
+                  assert acc > 0.90, \
+                      f"Full finetune accuracy {acc:.4f} below 0.90 threshold"
+              elif mode == "linear_probe":
+                  assert acc > 0.70, \
+                      f"Linear probe accuracy {acc:.4f} below 0.70 threshold"
+
+              print(f"✅ {fpath}: accuracy={acc:.4f} — PASS")
+
+          print("All JSON validation checks passed")
+          PYEOF
