@@ -1,0 +1,49 @@
+{
+  "mode": "linear_probe",
+  "backbone": "YukunZhou/RETFound_mae_meh (ViT-L/16 MAE)",
+  "epochs": 20,
+  "seeds": [
+    42,
+    123,
+    2024
+  ],
+  "summary": {
+    "accuracy": "0.7572 \u00b1 0.0067",
+    "auc": "0.9103 \u00b1 0.0002",
+    "f1": "0.6590 \u00b1 0.0052",
+    "drusen_f1": "0.3829 \u00b1 0.0009"
+  },
+  "main_branch": {
+    "backbone": "EfficientNetV2L + 4\u00d7MHA + XGBoost",
+    "accuracy": "0.9543 \u00b1 0.0027",
+    "auc": "0.9941 \u00b1 0.0006",
+    "f1": "0.9244 \u00b1 0.0047",
+    "drusen_f1": "0.8436 \u00b1 0.0096"
+  },
+  "per_seed": {
+    "42": {
+      "accuracy": 0.766,
+      "auc": 0.9106,
+      "f1": 0.666,
+      "drusen_f1": 0.3829,
+      "report": "              precision    recall  f1-score   support\n\n         CNV       0.91      0.75      0.82      3746\n         DME       0.58      0.58      0.58      1161\n      DRUSEN       0.28      0.60      0.38       887\n      NORMAL       0.91      0.85      0.88      5139\n\n    accuracy                           0.77     10933\n   macro avg       0.67      0.69      0.67     10933\nweighted avg       0.82      0.77      0.79     10933\n",
+      "history": []
+    },
+    "123": {
+      "accuracy": 0.7497,
+      "auc": 0.9101,
+      "f1": 0.6536,
+      "drusen_f1": 0.3818,
+      "report": "              precision    recall  f1-score   support\n\n         CNV       0.93      0.69      0.79      3746\n         DME       0.51      0.62      0.56      1161\n      DRUSEN       0.28      0.62      0.38       887\n      NORMAL       0.91      0.84      0.87      5139\n\n    accuracy                           0.75     10933\n   macro avg       0.66      0.69      0.65     10933\nweighted avg       0.82      0.75      0.77     10933\n",
+      "history": []
+    },
+    "2024": {
+      "accuracy": 0.7558,
+      "auc": 0.9101,
+      "f1": 0.6575,
+      "drusen_f1": 0.3839,
+      "report": "              precision    recall  f1-score   support\n\n         CNV       0.93      0.71      0.80      3746\n         DME       0.51      0.63      0.57      1161\n      DRUSEN       0.28      0.59      0.38       887\n      NORMAL       0.91      0.85      0.88      5139\n\n    accuracy                           0.76     10933\n   macro avg       0.66      0.70      0.66     10933\nweighted avg       0.82      0.76      0.78     10933\n",
+      "history": []
+    }
+  }
+}
