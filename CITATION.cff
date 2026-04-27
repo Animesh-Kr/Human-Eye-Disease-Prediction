@@ -1,11 +1,23 @@
 cff-version: 1.2.0
 message: "If you use this software, please cite it as below."
 authors:
-- family-names: "Kumar"
-  given-names: "Animesh"
-  orcid: "https://orcid.org/0009-0003-0608-7004"
-title: "Human Eye Disease Prediction: Hybrid CNN-Transformer Platform"
-version: 1.0.0
-doi: 10.5281/zenodo.19224304
+  - family-names: Kumar
+    given-names: Animesh
+    orcid: https://orcid.org/0009-0003-0608-7004
+    affiliation: Newcastle University, UK
+title: "A Hybrid CNN-Transformer Framework for Retinal OCT Classification with Integrated Clinical Safety Mechanisms"
+version: v1.0.0
 date-released: 2026-03-25
-url: "https://github.com/Animesh-Kr/Human-Eye-Disease-Prediction"
+doi: 10.5281/zenodo.19224303
+url: https://github.com/Animesh-Kr/Human-Eye-Disease-Prediction
+repository-code: https://github.com/Animesh-Kr/Human-Eye-Disease-Prediction
+license: MIT
+keywords:
+  - retinal-OCT-classification
+  - EfficientNetV2L
+  - transformer
+  - XGBoost
+  - uncertainty-quantification
+  - OOD-detection
+  - medical-image-classification
+abstract: "Hybrid CNN-Transformer framework achieving 95.43% accuracy on four-class retinal OCT classification with temperature scaling, Mahalanobis OOD detection, and MC Dropout uncertainty quantification."
