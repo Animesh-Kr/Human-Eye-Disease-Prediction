@@ -4,7 +4,7 @@
 MSc Advanced Computer Science — Newcastle University (2025–26)
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.19224303.svg)](https://doi.org/10.5281/zenodo.19224303)
-[![CI](https://github.com/Animesh-Kr/Human-Eye-Disease-Prediction/actions/workflows/model_tests.yml/badge.svg?branch=retfound-finetune)](https://github.com/Animesh-Kr/Human-Eye-Disease-Prediction/actions/workflows/model_tests.yml)
+[![CI](https://github.com/Animesh-Kr/Human-Eye-Disease-Prediction/actions/workflows/model_tests.yml/badge.svg?branch=main)](https://github.com/Animesh-Kr/Human-Eye-Disease-Prediction/actions/workflows/model_tests.yml)
 [![Live Demo](https://img.shields.io/badge/🤗%20HuggingFace-Gradio%20Pipeline-yellow)](https://huggingface.co/spaces/animeshakr/oct-complete-pipeline)
 [![Dashboard](https://img.shields.io/badge/🤗%20HuggingFace-Streamlit%20Dashboard-orange)](https://huggingface.co/spaces/animeshakr/oct-retinal-ai)
 [![API](https://img.shields.io/badge/🤗%20HuggingFace-REST%20API-green)](https://huggingface.co/spaces/animeshakr/oct-retinal-api)
@@ -18,7 +18,7 @@ MSc Advanced Computer Science — Newcastle University (2025–26)
 
 This repository contains the full implementation of a hybrid CNN-Transformer framework for four-class retinal OCT classification. The pipeline covers raw B-scan preprocessing through to edge-optimised inference, with a focus on the clinical safety mechanisms absent from most published OCT models.
 
-The master model achieves 95.43% accuracy across five independent random seeds. The edge-optimised ONNX node reduces the 2.07 GB Keras model to 237 MB and runs at ~62.9 ms per scan on a standard CPU — no GPU required.
+The model achieves **95.43% ± 0.27% accuracy** across five independent random seeds. The edge-optimised ONNX node reduces the 2.07 GB Keras model to 237 MB and runs at ~62.9 ms per scan on a standard CPU — no GPU required.
 
 ---
 
@@ -26,8 +26,8 @@ The master model achieves 95.43% accuracy across five independent random seeds. 
 
 | Metric | Mean ± Std |
 |---|---|
-| Accuracy | 95.43% ± 0.27% |
-| Macro AUC-ROC | 0.9941 ± 0.0006 |
+| Accuracy | **95.43% ± 0.27%** |
+| Macro AUC-ROC | **0.9941 ± 0.0006** |
 | Macro F1 | 0.9244 ± 0.0047 |
 | Drusen F1 (minority class) | 0.8436 ± 0.0096 |
 | ECE (calibrated) | 0.0024 ± 0.0005 |
@@ -37,7 +37,7 @@ The master model achieves 95.43% accuracy across five independent random seeds. 
 
 ## Foundation Model Comparison — RETFound (ViT-L/16 MAE)
 
-To contextualise our results, we fine-tuned [RETFound](https://huggingface.co/YukunZhou/RETFound_mae_meh) — a 303M-parameter ViT-L/16 foundation model pretrained on 1.6M retinal images from Moorfields Eye Hospital — on the same dataset and evaluation protocol. Full experiment code and results are in the [`retfound-finetune`](https://github.com/Animesh-Kr/Human-Eye-Disease-Prediction/tree/retfound-finetune) branch.
+Full experiment code and results are in the [`retfound-finetune`](https://github.com/Animesh-Kr/Human-Eye-Disease-Prediction/tree/retfound-finetune) branch.
 
 | Method | Accuracy | AUC-ROC | Macro F1 | Drusen F1 | Seeds |
 |---|---|---|---|---|---|
@@ -91,7 +91,7 @@ OCT Scan (224×224×3)
 | Calibration | Temperature scaling | T ≈ 1.05 | Corrects systematic softmax overconfidence |
 | Explainability | Grad-CAM + SHAP | — | Spatial + feature attribution |
 
-**Concrete failure case:** A NORMAL scan was classified as DRUSEN at 66.85% confidence. MC Dropout σ exceeded 0.15, routing the scan to specialist review instead of silently returning a wrong prediction.
+**Concrete failure case caught by safety layer:** A NORMAL scan was classified as DRUSEN at 66.85% confidence. MC Dropout σ exceeded 0.15, routing the scan to specialist review instead of silently returning an incorrect prediction.
 
 ---
 
@@ -128,7 +128,7 @@ OCT Scan (224×224×3)
 ## Repository Structure
 
 ```
-├── retfound/                   # RETFound comparison experiment (retfound-finetune branch)
+├── retfound/                   # RETFound comparison experiment
 ├── deployment_cloud/           # FastAPI Docker deployment
 ├── edge_inference/             # ONNX edge node (237 MB, ~62.9ms CPU)
 ├── .github/workflows/          # CI/CD — ONNX validation + API health check
@@ -176,16 +176,25 @@ Kermany et al. (Cell 2018) — 84,495 OCT B-scans, 4 classes.
 
 ```bibtex
 @article{kumar2026oct,
-  author  = {Kumar, Animesh A.},
+  author  = {Kumar, Animesh},
   title   = {A Hybrid {CNN}-Transformer Framework for Retinal {OCT}
              Classification with Integrated Clinical Safety Mechanisms},
   year    = {2026},
   doi     = {10.5281/zenodo.19224303},
-  note    = {Zenodo software archive, v1.0.0}
+  url     = {https://doi.org/10.5281/zenodo.19224303},
+  note    = {Independent research, Newcastle University MSc Advanced
+             Computer Science 2025--26. Zenodo software archive v1.0.0.}
 }
 ```
 
+> Once the arXiv preprint is submitted, add `archivePrefix = {arXiv}` and `eprint = {2026.XXXXX}` to the citation above.
+
 ---
 
-**Author:** Animesh Kumar — MSc Advanced Computer Science, Newcastle University (2025–26)  
+**Author:** Animesh Kumar · MSc Advanced Computer Science · Newcastle University (2025–26)  
+**ORCID:** [0009-0003-0608-7004](https://orcid.org/0009-0003-0608-7004)  
 **License:** MIT
+```
+```
+
+After arXiv submission update the citation block with the real arXiv ID and the README is complete.
