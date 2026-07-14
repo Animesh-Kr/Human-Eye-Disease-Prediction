@@ -3,6 +3,7 @@
 **EfficientNetV2L + 4× Multi-Head Attention + XGBoost Hybrid**  
 MSc Advanced Computer Science — Newcastle University (2025–26)
 
+[![arXiv](https://img.shields.io/badge/arXiv-2607.09809-B31B1B.svg)](https://arxiv.org/abs/2607.09809)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.19224303.svg)](https://doi.org/10.5281/zenodo.19224303)
 [![CI](https://github.com/Animesh-Kr/Human-Eye-Disease-Prediction/actions/workflows/model_tests.yml/badge.svg?branch=main)](https://github.com/Animesh-Kr/Human-Eye-Disease-Prediction/actions/workflows/model_tests.yml)
 [![Live Demo](https://img.shields.io/badge/🤗%20HuggingFace-Gradio%20Pipeline-yellow)](https://huggingface.co/spaces/animeshakr/oct-complete-pipeline)
