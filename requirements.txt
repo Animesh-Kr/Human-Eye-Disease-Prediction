@@ -1,3 +1,18 @@
+# Full dependency set for app.py. The previous file listed only streamlit,
+# plotly and pandas, so app.py could not start from a clean checkout.
 streamlit>=1.32.0
 plotly>=5.19.0
 pandas>=2.0.0
+numpy>=1.24,<2.0
+opencv-python-headless>=4.8
+Pillow>=10.0
+scipy>=1.10
+scikit-learn>=1.3
+huggingface_hub>=0.20
+protobuf<5
+
+# ML stack -- must match the training environment
+tensorflow==2.19.0
+keras==3.13.2
+xgboost==2.0.3
+albumentations==1.4.0
