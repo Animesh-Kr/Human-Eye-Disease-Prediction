@@ -105,15 +105,16 @@ OCT Scan (224×224×3)
     → Learnable Positional Encoding
     → 4× Multi-Head Attention (16 heads, key_dim=16)
     → GlobalAvgPool1D → 256-d feature vector
-    → XGBoost hybrid head (300 trees)
+    → XGBoost hybrid head (300 trees, max_depth=4)
     → Temperature scaling
     → CNV / DME / DRUSEN / NORMAL
 ```
 
 Head count, projection width, dropout, focal gamma and XGBoost depth are selected by
 Optuna over `n_heads ∈ {8, 16}`, `proj_dim ∈ {256, 512}`, `xgb_depth ∈ [4, 8]`. The
-configuration actually deployed is the one recorded in `best_hparams.pkl`; the diagram
-above shows that selection.
+configuration actually deployed is the one recorded in `best_hparams.pkl`, which the
+diagram above reflects: `n_heads=16`, `proj_dim=256` (hence `key_dim=16`),
+`xgb_depth=4`, `lr=1.59e-4`, `dropout=0.383`, `focal_gamma=1.364`.
 
 ---
 
