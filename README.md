@@ -1,11 +1,10 @@
 # 👁️ OCT Retinal AI — Retinal Disease Classification
 
-**EfficientNetV2L + 4× Multi-Head Attention + XGBoost Hybrid**  
+**EfficientNetV2L + 4× Multi-Head Attention + XGBoost Hybrid**
 MSc Advanced Computer Science — Newcastle University (2025–26)
 
 [![arXiv](https://img.shields.io/badge/arXiv-2607.09809-B31B1B.svg)](https://arxiv.org/abs/2607.09809)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.19224303.svg)](https://doi.org/10.5281/zenodo.19224303)
-[![CI](https://github.com/Animesh-Kr/Human-Eye-Disease-Prediction/actions/workflows/model_tests.yml/badge.svg?branch=main)](https://github.com/Animesh-Kr/Human-Eye-Disease-Prediction/actions/workflows/model_tests.yml)
 [![Live Demo](https://img.shields.io/badge/🤗%20HuggingFace-Gradio%20Pipeline-yellow)](https://huggingface.co/spaces/animeshakr/oct-complete-pipeline)
 [![Dashboard](https://img.shields.io/badge/🤗%20HuggingFace-Streamlit%20Dashboard-orange)](https://huggingface.co/spaces/animeshakr/oct-retinal-ai)
 [![API](https://img.shields.io/badge/🤗%20HuggingFace-REST%20API-green)](https://huggingface.co/spaces/animeshakr/oct-retinal-api)
@@ -15,15 +14,37 @@ MSc Advanced Computer Science — Newcastle University (2025–26)
 
 ---
 
+## Status
+
+This work is **under revision following peer review**. A self-audit of the training
+code found reporting defects that are being corrected before resubmission. Affected
+claims are marked ⚠️ throughout and are listed in [`REVISION_NOTES.md`](REVISION_NOTES.md).
+
+The preprint [arXiv:2607.09809](https://arxiv.org/abs/2607.09809) (submitted 9 July
+2026) predates this audit and still contains the affected claims. **A corrected v2 is
+in preparation.** Until it is posted, prefer the figures in this README over those in
+v1.
+
+---
+
 ## Overview
 
-This repository contains the full implementation of a hybrid CNN-Transformer framework for four-class retinal OCT classification. The pipeline covers raw B-scan preprocessing through to edge-optimised inference, with a focus on the clinical safety mechanisms absent from most published OCT models.
+A hybrid CNN-Transformer framework for four-class retinal OCT classification. The
+pipeline covers raw B-scan preprocessing through to edge-optimised inference, with
+explicit attention to calibration, out-of-distribution rejection, and uncertainty —
+mechanisms absent from most published OCT classifiers.
 
-The model achieves **95.43% ± 0.27% accuracy** across five independent random seeds. The edge-optimised ONNX node reduces the 2.07 GB Keras model to 237 MB and runs at ~62.9 ms per scan on a standard CPU — no GPU required.
+The model achieves **95.43% ± 0.27% accuracy** across five independent random seeds,
+each retrained end to end. The edge-optimised ONNX node reduces the 2.07 GB Keras
+model to 237 MB and runs at ~62.9 ms per scan on a standard CPU — no GPU required.
 
 ---
 
 ## Results — 5-Seed Statistical Validation
+
+Test set: Kermany official `test/` split, **n = 7,933** (CNV 3,960 · DME 1,101 ·
+DRUSEN 1,086 · NORMAL 1,786). Each seed retrains the full pipeline: Phase A → Phase B
+→ feature extraction → XGBoost head.
 
 | Metric | Mean ± Std |
 |---|---|
@@ -31,37 +52,45 @@ The model achieves **95.43% ± 0.27% accuracy** across five independent random s
 | Macro AUC-ROC | **0.9941 ± 0.0006** |
 | Macro F1 | 0.9244 ± 0.0047 |
 | Drusen F1 (minority class) | 0.8436 ± 0.0096 |
-| ECE (calibrated) | 0.0024 ± 0.0005 |
-| McNemar p-value | < 0.0001 (all 5 seeds) |
+| ECE (calibrated) | ⚠️ recomputation pending — see below |
+
+⚠️ **ECE withdrawn.** The expected-calibration-error routine binned its confidence
+axis incorrectly, evaluating 8 of 15 bins and dropping the samples that fell in the
+gaps. The previously published figure (0.0024 ± 0.0005) understates the true value and
+should not be cited. Corrected implementation and the real number will land with the
+revision.
+
+Hyperparameters were tuned once (Optuna, seed 42) and reused across all five seeds, so
+the reported ±0.27% reflects seed variance only and excludes hyperparameter-selection
+variance.
 
 ---
 
 ## Foundation Model Comparison — RETFound (ViT-L/16 MAE)
 
-Full experiment code and results are in the [`retfound-finetune`](https://github.com/Animesh-Kr/Human-Eye-Disease-Prediction/tree/retfound-finetune) branch.
+⚠️ **This comparison is withdrawn pending re-evaluation.** The RETFound experiment and
+the main branch were scored on **different test partitions** — 10,933 images versus
+7,933, with NORMAL comprising 47% of the former and 22.5% of the latter. Because
+NORMAL is the easiest class, the two accuracies are not comparable in either
+direction. Both models are being re-evaluated on one common split; the corrected table
+will be published with the revision.
 
-| Method | Accuracy | AUC-ROC | Macro F1 | Drusen F1 | Seeds |
-|---|---|---|---|---|---|
-| Baseline CNN (EffNetV2L + Dense) | 89.12% | 0.9410 | 0.8642 | — | 1 |
-| **Ours (EffNetV2L + 4×MHA + XGBoost)** | **95.43% ± 0.27%** | **0.9941 ± 0.0006** | **0.9244 ± 0.0047** | **0.8436 ± 0.0096** | **5** |
-| RETFound linear probe (frozen ViT-L/16) | 75.72% ± 0.67% | 0.9103 ± 0.0002 | 0.6590 ± 0.0052 | 0.3829 ± 0.0009 | 3 |
-| RETFound full fine-tuning (303M params) | 95.14% ± 1.37% | 0.9922 ± 0.0041 | 0.9189 ± 0.0214 | 0.8192 ± 0.0420 | 3 |
-
-**Key findings:**
-- Our hybrid architecture matches a domain-specific 303M-parameter foundation model while being **5× more stable** across seeds (±0.27% vs ±1.37%)
-- The XGBoost head outperforms the RETFound linear classification head on the minority Drusen class (F1 0.84 vs 0.82)
-- RETFound linear probe (75.72%) confirms that the modality gap between fundus photographs and OCT B-scans requires full domain adaptation
+Experiment code and raw per-seed results remain available for inspection in the
+[`retfound-finetune`](https://github.com/Animesh-Kr/Human-Eye-Disease-Prediction/tree/retfound-finetune)
+branch and on [HuggingFace](https://huggingface.co/animeshakr/oct-retinal-weights/tree/main/retfound).
+Note that the RETFound run substituted seed 999 for seed 2024 after float16 AMP
+instability; that substitution narrows its reported spread.
 
 ---
 
 ## Ablation Study
 
-| Variant | Accuracy | AUC-ROC |
-|---|---|---|
-| EfficientNetV2L (frozen) + Dense | 89.12% | 0.9410 |
-| + Fine-tuned Block 6+ | 92.45% | 0.9755 |
-| + Transformer (4× MHA) | 94.10% | 0.9880 |
-| + XGBoost head (full model) | **95.43%** | **0.9941** |
+⚠️ **Withdrawn.** The architectural progression previously published here
+(frozen backbone → +block6 fine-tuning → +transformer → +XGBoost) requires training
+four separate models, and the code that would produce it is not in this repository.
+The ablation that the notebook *does* run compares classifier heads on a single frozen
+feature extractor — a different experiment. The progression is being implemented
+properly and will be republished with its code.
 
 ---
 
@@ -76,23 +105,36 @@ OCT Scan (224×224×3)
     → Learnable Positional Encoding
     → 4× Multi-Head Attention (16 heads, key_dim=16)
     → GlobalAvgPool1D → 256-d feature vector
-    → XGBoost hybrid head (300 trees, max_depth=4)
-    → Temperature scaling (T≈1.05)
+    → XGBoost hybrid head (300 trees)
+    → Temperature scaling
     → CNV / DME / DRUSEN / NORMAL
 ```
+
+Head count, projection width, dropout, focal gamma and XGBoost depth are selected by
+Optuna over `n_heads ∈ {8, 16}`, `proj_dim ∈ {256, 512}`, `xgb_depth ∈ [4, 8]`. The
+configuration actually deployed is the one recorded in `best_hparams.pkl`; the diagram
+above shows that selection.
 
 ---
 
 ## Clinical Safety Features
 
-| Feature | Method | Threshold | Purpose |
-|---|---|---|---|
-| OOD Detection | Mahalanobis distance | 97th percentile | Rejects non-retinal or corrupted scans |
-| Uncertainty | MC Dropout (20 passes) | σ > 0.15 | Flags low-confidence predictions |
-| Calibration | Temperature scaling | T ≈ 1.05 | Corrects systematic softmax overconfidence |
-| Explainability | Grad-CAM + SHAP | — | Spatial + feature attribution |
+| Feature | Method | Purpose |
+|---|---|---|
+| OOD Detection | Mahalanobis distance, 97th-percentile threshold | Rejects non-retinal or corrupted scans |
+| Uncertainty | MC Dropout (20 passes), σ > 0.15 | Flags low-confidence predictions |
+| Calibration | Temperature scaling | Corrects systematic softmax overconfidence |
+| Explainability | Grad-CAM + SHAP | Spatial + feature attribution |
 
-**Concrete failure case caught by safety layer:** A NORMAL scan was classified as DRUSEN at 66.85% confidence. MC Dropout σ exceeded 0.15, routing the scan to specialist review instead of silently returning an incorrect prediction.
+⚠️ **Calibration caveat.** Both the temperature and the OOD threshold are currently fit
+on the dataset's official `val/` directory, which holds 32 images (8 per class) in the
+standard OCT2017 release. A 97th
+percentile estimated from 32 points is not a meaningful quantile. A patient-disjoint
+validation split is being carved from `train/` and both quantities refit on it.
+
+**Failure case caught by the safety layer:** a NORMAL scan was classified as DRUSEN at
+66.85% confidence. MC Dropout σ exceeded 0.15, routing the scan to specialist review
+rather than silently returning an incorrect prediction.
 
 ---
 
@@ -129,23 +171,27 @@ OCT Scan (224×224×3)
 ## Repository Structure
 
 ```
-├── retfound/                   # RETFound comparison experiment
 ├── deployment_cloud/           # FastAPI Docker deployment
 ├── edge_inference/             # ONNX edge node (237 MB, ~62.9ms CPU)
-├── .github/workflows/          # CI/CD — ONNX validation + API health check
 ├── Human-Eye.ipynb             # Full training pipeline — Phases 1–6
 ├── app.py                      # Streamlit dashboard
-└── assets/                     # Attention maps, confusion matrix, ablation plots
+├── quantise_benchmark.py       # ONNX export + latency benchmark
+└── assets/                     # Attention maps, confusion matrix, plots
 ```
+
+The RETFound comparison lives on the
+[`retfound-finetune`](https://github.com/Animesh-Kr/Human-Eye-Disease-Prediction/tree/retfound-finetune)
+branch, not on `main`.
 
 ---
 
 ## Setup
 
 ```bash
-conda env create -f reproduce/environment.yml
-conda activate oct_retinal
+pip install -r requirements_local.txt
 ```
+
+Then fetch the weights and safety components:
 
 ```python
 from huggingface_hub import hf_hub_download
@@ -164,22 +210,58 @@ for f in ['Final_CNN_Transformer.keras', 'Final_XGBoost_Hybrid.json',
 
 Kermany et al. (Cell 2018) — 84,495 OCT B-scans, 4 classes.
 
-| Class | Train | Test | Clinical Significance |
-|---|---|---|---|
-| CNV | 37,206 | 3,960 | Wet AMD — urgent anti-VEGF |
-| DME | 11,349 | 1,101 | Diabetic macular oedema |
-| DRUSEN | 8,617 | 1,086 | Early AMD biomarker |
-| NORMAL | 26,315 | 1,786 | Healthy retina |
+| Class | Train | Val | Test | Clinical Significance |
+|---|---|---|---|---|
+| CNV | 37,206 | 8 | 3,960 | Wet AMD — urgent anti-VEGF |
+| DME | 11,349 | 8 | 1,101 | Diabetic macular oedema |
+| DRUSEN | 8,617 | 8 | 1,086 | Early AMD biomarker |
+| NORMAL | 26,315 | 8 | 1,786 | Healthy retina |
+
+The official `val/` split holds 32 images total. It is currently used for model
+selection, temperature scaling and the OOD threshold; see the calibration caveat
+above. A patient-disjoint split carved from `train/` replaces it in the revision.
+
+---
+
+## Comparison to Published Work
+
+| Study | Backbone | Accuracy |
+|---|---|---|
+| Kermany et al. (Cell 2018) | VGG-16 | 96.6% |
+| Fang et al. (2019) | Multi-scale CNN | 97.4% |
+| Li et al. (2021) | Vision Transformer | 98.1% |
+| **This work** | EfficientNetV2L + 4× MHA + XGBoost | **95.43% ± 0.27%** |
+
+Accuracies are **not directly comparable** — these studies use different test
+protocols, and only this work reports multi-seed variance. The contribution here is
+not peak accuracy but the calibration, OOD-rejection and uncertainty layer, together
+with a 237 MB CPU-only deployment node.
 
 ---
 
 ## Citation
 
+Preprint:
+
 ```bibtex
-@article{kumar2026oct,
+@misc{kumar2026oct,
+  author        = {Kumar, Animesh},
+  title         = {Calibrated Hybrid {CNN}-Transformer for Retinal {OCT} Classification},
+  year          = {2026},
+  eprint        = {2607.09809},
+  archivePrefix = {arXiv},
+  primaryClass  = {eess.IV},
+  doi           = {10.48550/arXiv.2607.09809},
+  url           = {https://arxiv.org/abs/2607.09809}
+}
+```
+
+Software archive:
+
+```bibtex
+@software{kumar2026octcode,
   author  = {Kumar, Animesh},
-  title   = {A Hybrid {CNN}-Transformer Framework for Retinal {OCT}
-             Classification with Integrated Clinical Safety Mechanisms},
+  title   = {OCT Retinal AI --- Hybrid CNN-Transformer Classification Pipeline},
   year    = {2026},
   doi     = {10.5281/zenodo.19224303},
   url     = {https://doi.org/10.5281/zenodo.19224303},
@@ -188,14 +270,8 @@ Kermany et al. (Cell 2018) — 84,495 OCT B-scans, 4 classes.
 }
 ```
 
-> Once the arXiv preprint is submitted, add `archivePrefix = {arXiv}` and `eprint = {2026.XXXXX}` to the citation above.
-
 ---
 
-**Author:** Animesh Kumar · MSc Advanced Computer Science · Newcastle University (2025–26)  
-**ORCID:** [0009-0003-0608-7004](https://orcid.org/0009-0003-0608-7004)  
+**Author:** Animesh Kumar · MSc Advanced Computer Science · Newcastle University (2025–26)
+**ORCID:** [0009-0003-0608-7004](https://orcid.org/0009-0003-0608-7004)
 **License:** MIT
-```
-```
-
-After arXiv submission update the citation block with the real arXiv ID and the README is complete.
