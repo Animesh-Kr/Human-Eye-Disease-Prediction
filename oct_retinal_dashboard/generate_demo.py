@@ -19,6 +19,52 @@ import albumentations as A
 from glob import glob
 from scipy.spatial.distance import mahalanobis
 
+# ── Audit fixes: MC Dropout and Grad-CAM correctness ─────────────────────────
+# model(x, training=True) enables dropout but ALSO puts every BatchNormalization
+# layer into training mode, so each BN normalises by the statistics of the current
+# batch -- and that batch is n identical copies of one image, not the moving
+# averages learned over the training set. EfficientNetV2L is saturated with BN.
+# _mc_model() keeps BatchNorm in inference mode and makes only dropout stochastic.
+_MC_CACHE = {}
+
+
+def _mc_model(base):
+    """Clone `base` with every Dropout swapped for an always-sampling Dropout.
+
+    TensorFlow is imported locally: app.py loads it lazily inside a cached loader,
+    so there is no module-level `tf` to rely on here.
+    """
+    import tensorflow as tf
+
+    key = id(base)
+    if key not in _MC_CACHE:
+        class _MCDropout(tf.keras.layers.Dropout):
+            def call(self, inputs, training=None):
+                return super().call(inputs, training=True)
+
+        def _swap(layer):
+            if type(layer) is tf.keras.layers.Dropout:
+                return _MCDropout(layer.rate, noise_shape=layer.noise_shape,
+                                  seed=layer.seed, name=layer.name)
+            return layer.__class__.from_config(layer.get_config())
+
+        clone = tf.keras.models.clone_model(base, clone_function=_swap)
+        clone.set_weights(base.get_weights())
+        _MC_CACHE[key] = clone
+    return _MC_CACHE[key]
+
+
+def _softmax_dense(base, name='disease_output'):
+    """The final softmax Dense layer, so Grad-CAM can reach its pre-activation."""
+    import tensorflow as tf
+
+    try:
+        return base.get_layer(name)
+    except ValueError:
+        return next(l for l in reversed(base.layers)
+                    if isinstance(l, tf.keras.layers.Dense))
+# ─────────────────────────────────────────────────────────────────────────────
+
 # ── Custom Keras stubs ────────────────────────────────────────────────────────
 class _DummyFocalLoss(tf.keras.losses.Loss):
     def __init__(self, gamma=2.0, alpha=0.25, **kwargs):
@@ -62,14 +108,16 @@ def make_gradcam_heatmap(img_array, model, last_conv_layer='top_activation'):
             return np.zeros((7, 7), dtype=np.float32)
 
     grad_model = tf.keras.Model(
-        inputs=model.inputs, outputs=[conv_layer.output, model.output])
+        inputs=model.inputs, outputs=[conv_layer.output, _softmax_dense(model).input])
 
     # FIX: pass input as named dict to match model's expected input structure
     input_name = model.inputs[0].name.split(":")[0]
     with tf.GradientTape() as tape:
-        conv_out, predictions = grad_model(
-            {input_name: img_array}, training=False)
-        class_score = predictions[:, tf.argmax(predictions[0])]
+        # PRE-SOFTMAX logit, not the probability -- see Selvaraju et al. (2017)
+        conv_out, penult = grad_model({input_name: img_array}, training=False)
+        _d = _softmax_dense(model)
+        logits = tf.matmul(penult, _d.kernel) + _d.bias
+        class_score = logits[:, tf.argmax(logits[0])]
     grads        = tape.gradient(class_score, conv_out)
     pooled_grads = tf.reduce_mean(grads, axis=(0, 1, 2))
     heatmap      = tf.nn.relu(tf.squeeze(conv_out[0] @ pooled_grads[..., tf.newaxis]))
@@ -196,7 +244,7 @@ def generate_demo_json():
 
                 # MC Dropout — all 20 passes in ONE GPU call
                 x_batch     = np.repeat(x_in, 20, axis=0)
-                mc_preds    = model(x_batch, training=True).numpy()
+                mc_preds    = _mc_model(model)(x_batch, training=False).numpy()
                 uncertainty = float(mc_preds.std(axis=0).max())
 
                 # Grad-CAM
