@@ -68,12 +68,23 @@ variance.
 
 ## Foundation Model Comparison — RETFound (ViT-L/16 MAE)
 
-⚠️ **This comparison is withdrawn pending re-evaluation.** The RETFound experiment and
-the main branch were scored on **different test partitions** — 10,933 images versus
-7,933, with NORMAL comprising 47% of the former and 22.5% of the latter. Because
-NORMAL is the easiest class, the two accuracies are not comparable in either
-direction. Both models are being re-evaluated on one common split; the corrected table
-will be published with the revision.
+**Correction (supersedes an earlier note in this README).** An earlier revision of this
+file withdrew this comparison on the belief that the two models had been scored on
+different test partitions. That was wrong. Both were evaluated on the **same 10,933-image
+test set**: `assets/clinical_metrics.csv` gives per-class support of CNV 3,746 /
+DME 1,161 / DRUSEN 887 / NORMAL 5,139, identical to the supports in
+`retfound/results_full_finetune_3seed.json`, and its implied accuracy (10,484/10,933
+= 0.9589) matches `assets/ablation_results.csv` exactly. The comparison stands.
+
+| Method | Accuracy | AUC-ROC | Macro F1 | Drusen F1 | Seeds |
+|---|---|---|---|---|---|
+| **Ours (EffNetV2L + 4×MHA + XGBoost)** | **95.43% ± 0.27%** | **0.9941 ± 0.0006** | **0.9244 ± 0.0047** | **0.8436 ± 0.0096** | **5** |
+| RETFound full fine-tuning (303M params) | 95.14% ± 1.37% | 0.9922 ± 0.0041 | 0.9189 ± 0.0214 | 0.8192 ± 0.0420 | 3 |
+| RETFound linear probe (frozen ViT-L/16) | 75.72% ± 0.67% | 0.9103 ± 0.0002 | 0.6590 ± 0.0052 | 0.3829 ± 0.0009 | 3 |
+
+Two caveats that belong with the table: the RETFound run substituted seed 999 for seed
+2024 after float16 AMP instability, which narrows its reported spread; and RETFound's
+best seed (96.33%) exceeds our mean, so the honest claim is parity, not superiority.
 
 Experiment code and raw per-seed results remain available for inspection in the
 [`retfound-finetune`](https://github.com/Animesh-Kr/Human-Eye-Disease-Prediction/tree/retfound-finetune)
@@ -85,12 +96,29 @@ instability; that substitution narrows its reported spread.
 
 ## Ablation Study
 
-⚠️ **Withdrawn.** The architectural progression previously published here
-(frozen backbone → +block6 fine-tuning → +transformer → +XGBoost) requires training
-four separate models, and the code that would produce it is not in this repository.
-The ablation that the notebook *does* run compares classifier heads on a single frozen
-feature extractor — a different experiment. The progression is being implemented
-properly and will be republished with its code.
+The architectural progression previously published here (frozen backbone → +block6 →
++transformer → +XGBoost) is withdrawn: no code in this repository produces it.
+
+This is the ablation the notebook actually runs, from `assets/ablation_results.csv` —
+five classifier heads on one frozen feature extractor, all on the 10,933-image test set:
+
+| Head | Accuracy | Macro F1 | Drusen F1 | Macro AUC |
+|---|---|---|---|---|
+| Logistic Regression | 0.9639 | 0.9374 | 0.8645 | 0.9949 |
+| SVM (Linear, calibrated) | 0.9654 | 0.9395 | 0.8686 | 0.9932 |
+| XGBoost (reduced capacity) | 0.9632 | 0.9364 | 0.8612 | 0.9948 |
+| **XGBoost (backbone-only)** | **0.9659** | **0.9408** | 0.8679 | **0.9955** |
+| XGBoost Hybrid (final) | 0.9589 | 0.9316 | 0.8553 | 0.9947 |
+
+⚠️ **The XGBoost hybrid head is the weakest of the five.** Logistic regression beats it
+by 0.5 points of accuracy, and a backbone-only XGBoost — which does not use the
+transformer features at all — beats it by 0.7 points and leads on every metric except
+Drusen F1. On this evidence the transformer-plus-XGBoost head is not justified as the
+contribution, and the architecture's value has to be re-argued or the head replaced.
+
+The variant labelled `XGBoost (no CutMix)` in the raw CSV is renamed above: it does not
+disable CutMix, it reduces `n_estimators` to 100 and `max_depth` to 6 on features from
+the CutMix-trained model.
 
 ---
 
@@ -211,12 +239,18 @@ for f in ['Final_CNN_Transformer.keras', 'Final_XGBoost_Hybrid.json',
 
 Kermany et al. (Cell 2018) — 84,495 OCT B-scans, 4 classes.
 
-| Class | Train | Val | Test | Clinical Significance |
-|---|---|---|---|---|
-| CNV | 37,206 | 8 | 3,960 | Wet AMD — urgent anti-VEGF |
-| DME | 11,349 | 8 | 1,101 | Diabetic macular oedema |
-| DRUSEN | 8,617 | 8 | 1,086 | Early AMD biomarker |
-| NORMAL | 26,315 | 8 | 1,786 | Healthy retina |
+| Class | Val | Test | Clinical Significance |
+|---|---|---|---|
+| CNV | 8 | 3,746 | Wet AMD — urgent anti-VEGF |
+| DME | 8 | 1,161 | Diabetic macular oedema |
+| DRUSEN | 8 | 887 | Early AMD biomarker |
+| NORMAL | 8 | 5,139 | Healthy retina |
+| **Total** | **32** | **10,933** | |
+
+⚠️ Test counts are derived from `assets/clinical_metrics.csv`, i.e. from the split the
+pipeline actually evaluated. An earlier version of this table reported the published
+Kermany OCT2017 split (3,960 / 1,101 / 1,086 / 1,786 = 7,933) rather than the contents
+of the directories this code downloads. Train counts are being recounted the same way.
 
 The official `val/` split holds 32 images total. It is currently used for model
 selection, temperature scaling and the OOD threshold; see the calibration caveat
